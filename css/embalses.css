@@ -1,0 +1,2352 @@
+/* ==========================================================================
+   PANTALLA EMBALSES
+   Componentes, gráficas, tarjetas y control de impresión de Embalses.
+   ========================================================================== */
+/* ==========================================================================
+   CONTROL CENTRAL DE COMPONENTES
+   Modifica aquí tamaños y posiciones de la vista web.
+   La impresión conserva sus reglas independientes.
+   ========================================================================== */
+
+.nav-btn.active {
+  background: linear-gradient(90deg,#079dcc,#0878ad);
+  color: #fff;
+  box-shadow: 0 7px 16px #0004;
+}
+
+.screen.active {
+  display: block;
+}
+
+.dashboard {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 190px;
+  gap: var(--dashboard-gap);
+  max-width: var(--dashboard-max-width);
+  margin: auto;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #c8cdd0;
+  border-radius: 10px;
+  box-shadow: 0 2px 7px #0002;
+  overflow: hidden;
+}
+
+.system {
+  grid-column: 1/4;
+  display: grid;
+  grid-template-columns: var(--system-columns);
+  min-height: var(--system-height);
+  padding: 10px 14px;
+}
+
+.system-left {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  border-right: 2px solid #c2c2c2;
+  padding-right: 14px;
+}
+
+.sys-date {
+  grid-column: 1/3;
+  text-align: center;
+  font-weight: 800;
+}
+
+.system-main {
+  padding: 0 18px;
+}
+
+.system-main h2 {
+  font: 900 30px Impact,Arial Black;
+  margin: 0 0 7px;
+}
+
+.period {
+  background: #e3e3e3;
+  padding: 7px 11px;
+  font-size: 11px;
+  display: inline-block;
+}
+
+.flow {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 145px 32px 62px 32px 1fr;
+  gap: 7px;
+  align-items: center;
+}
+
+.arrow {
+  font-size: 31px;
+  font-weight: 900;
+}
+
+.green {
+  color: var(--green);
+}
+
+.red {
+  color: red;
+}
+
+.reservoir {
+  min-height: var(--reservoir-height);
+}
+
+.reservoir-top {
+  height: var(--reservoir-top-height);
+  display: grid;
+  grid-template-columns: var(--reservoir-columns);
+  position: relative;
+  border-bottom: 1px solid #ccc;
+}
+
+.name {
+  position: absolute;
+  left: 27px;
+  top: 14px;
+  margin: 0;
+  font: 900 22px Impact,Arial Black;
+}
+
+.status {
+  position: absolute;
+  right: 0;
+  top: 0;
+  min-width: 140px;
+  padding: 11px;
+  text-align: center;
+  background: #00b554;
+  font-size: 10px;
+}
+
+.status.warn {
+  background: #fff900;
+}
+
+.drop-wrap {
+  padding: 44px 8px 8px;
+  display: grid;
+  place-items: end center;
+}
+
+.drop-svg {
+  width: 92px;
+  height: 106px;
+  overflow: visible;
+}
+
+.drop-outline {
+  fill: #fff;
+  stroke: var(--blue);
+  stroke-width: 3;
+}
+
+.drop-water {
+  fill: var(--blue);
+}
+
+.drop-text {
+  font-weight: 900;
+  font-size: 17px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.level-area {
+  display: flex;
+  align-items: center;
+  padding: 49px 15px 12px;
+}
+
+.level {
+  width: 100%;
+  position: relative;
+  padding-top: 37px;
+}
+
+.indicator {
+  position: absolute;
+  left: clamp(0%,var(--pos),100%);
+  top: 0;
+  transform: translateX(-50%);
+  text-align: center;
+  font-weight: 900;
+  font-size: 19px;
+  white-space: nowrap;
+  transition: left .35s ease;
+}
+
+.indicator i {
+  display: block;
+  width: 0;
+  height: 0;
+  margin: 4px auto 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 12px solid #111;
+}
+
+.segbar {
+  background: linear-gradient(90deg,var(--red) 0 34%,var(--orange) 34% 43%,var(--yellow) 43% 52%,var(--green) 52% 100%);
+}
+
+.reservoir-bottom {
+  min-height: var(--reservoir-bottom-height);
+  padding: 8px;
+  display: grid;
+  grid-template-columns: 125px 29px 60px 29px 1fr;
+  gap: 5px;
+  align-items: center;
+}
+
+.rain {
+  border: 1px solid var(--green);
+  border-left: 9px solid var(--green);
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: 35px 1fr;
+  align-items: center;
+  min-height: 50px;
+}
+
+.rain-icon {
+  text-align: center;
+  font-size: 21px;
+}
+
+.rain-val {
+  text-align: center;
+  border-left: 1px solid #ddd;
+}
+
+.rain-val small {
+  display: block;
+  color: #899296;
+}
+
+.rain-val b {
+  font-size: 15px;
+}
+
+.dam-icon {
+  width: 58px;
+  height: 52px;
+}
+
+.metrics {
+  display: grid;
+  gap: 5px;
+}
+
+.metric {
+  display: grid;
+  grid-template-columns: 68px 1fr 40px;
+  align-items: center;
+  font-size: 10px;
+  gap: 5px;
+}
+
+.metric-track {
+  height: var(--metric-track-height);
+  position: relative;
+}
+
+.metric-fill {
+  height: 100%;
+  background: #4c91c9;
+  border-radius: 0 2px 2px 0;
+}
+
+.metric b {
+  text-align: right;
+}
+
+.eco-card {
+  align-self: center;
+  margin-left: 4px;
+  border-radius: 15px;
+  background: linear-gradient(155deg,#9b5bd3,#7041b5);
+  color: #fff;
+  box-shadow: 0 8px 20px #7142b54d;
+  overflow: hidden;
+  text-align: center;
+}
+
+.eco-card .eco-title {
+  padding: 13px 8px 10px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.eco-card .eco-value {
+  background: #fff;
+  color: #2b153e;
+  margin: 0 3px 3px;
+  padding: 12px 5px;
+  border-radius: 0 0 11px 11px;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.side-panel {
+  grid-column: 3;
+  grid-row: 2/5;
+  padding: 10px;
+  border: 2px solid #111;
+}
+
+.side-panel h3,
+.side-panel h4 {
+  font: 900 19px Impact,Arial Black;
+  color: #858585;
+  text-align: center;
+  margin: 5px;
+}
+
+.cons-chart {
+  border-bottom: 2px solid #111;
+  display: flex;
+  align-items: end;
+  justify-content: space-around;
+}
+
+.cons-col {
+  text-align: center;
+  font-size: 10px;
+}
+
+.cons-bar {
+  width: var(--cons-bar-width);
+  background: #4c91c9;
+  position: relative;
+}
+
+.cons-bar b {
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+}
+
+.side-sec {
+  padding-bottom: 9px;
+  border-bottom: 2px solid #111;
+}
+
+.mini-drop {
+  display: grid;
+  place-items: center;
+}
+
+.mini-drop .drop-svg {
+  width: var(--drop-mini-width);
+  height: var(--drop-mini-height);
+}
+
+.alerts {
+  padding-top: 7px;
+}
+
+.alert {
+  padding: 11px;
+  text-align: center;
+  font-size: 21px;
+  font-weight: 900;
+  background: linear-gradient(135deg,#dceaff 80%,transparent 81%);
+}
+
+.alert.reda {
+  background: linear-gradient(45deg,#ffb6b6 80%,transparent 81%);
+}
+
+@media screen and (max-width:1100px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .system,
+.side-panel {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .system {
+    grid-template-columns: 1fr;
+  }
+
+  .system-left {
+    border: 0;
+  }
+
+  .side-panel {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+  }
+}
+
+@media screen and (max-width:760px) {
+  .reservoir-top {
+    grid-template-columns: 105px 1fr;
+  }
+
+  .reservoir-bottom {
+    grid-template-columns: 105px 24px 52px 24px 1fr;
+  }
+
+  .system-left {
+    grid-template-columns: 105px 1fr;
+  }
+}
+
+/* Ajustes de la tercera vista previa */
+
+.level {
+  padding-top: 45px;
+}
+
+.indicator {
+  top: 0;
+  line-height: 21px;
+  z-index: 2;
+}
+
+.indicator i {
+  margin-top: 3px;
+  border-left-width: 6px;
+  border-right-width: 6px;
+  border-top-width: 11px;
+}
+
+.segbar {
+  height: var(--level-bar-height);
+}
+
+.flow-arrow {
+  width: 34px;
+  height: 26px;
+  display: block;
+  filter: drop-shadow(0 2px 2px #0002);
+}
+
+.flow-arrow.green-arrow {
+  color: #00ad50;
+}
+
+.flow-arrow.red-arrow {
+  color: #f01522;
+}
+
+.side-panel {
+  padding: 7px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-panel h3,
+.side-panel h4 {
+  margin: 3px 0;
+  font-size: 18px;
+}
+
+.cons-chart {
+  height: var(--cons-chart-height);
+}
+
+.side-sec {
+  padding-bottom: 6px;
+}
+
+.water-reserves {
+  flex: 1;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  align-items: center;
+  padding: 3px 0;
+}
+
+.reserve-row {
+  display: grid;
+  grid-template-columns: 1fr 82px;
+  align-items: center;
+  min-height: 78px;
+}
+
+.reserve-row:nth-child(2) {
+  grid-template-columns: 82px 1fr;
+}
+
+.reserve-row:nth-child(2) h4 {
+  grid-column: 2;
+  grid-row: 1;
+  text-align: left;
+  padding-left: 8px;
+}
+
+.reserve-row:nth-child(2) .mini-drop {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.reserve-row h4 {
+  text-align: right;
+  padding-right: 8px;
+}
+
+.reserve-row .drop-svg {
+  width: 66px;
+  height: 76px;
+}
+
+.alerts {
+  padding-top: 4px;
+}
+
+.alerts h4 {
+  text-align: left;
+  margin: 0 0 5px;
+}
+
+.alerts small {
+  display: block;
+  color: #111;
+  font-size: 11px;
+  margin: 1px 0;
+}
+
+.alert {
+  height: 44px;
+  padding: 10px;
+  font-size: 20px;
+  display: grid;
+  place-items: center;
+  background: #dce9ff;
+  clip-path: polygon(0 0,84% 0,100% 50%,84% 100%,0 100%);
+}
+
+.alert.reda {
+  background: #ffb4b7;
+  clip-path: polygon(16% 0,100% 0,100% 100%,16% 100%,0 50%);
+}
+
+@media (min-width:1101px) and (min-height:700px), print {
+  .dashboard {
+    padding: 8px 10px;
+    gap: var(--dashboard-gap);
+  }
+
+  .system {
+    min-height: var(--system-height);
+    padding: 7px 12px;
+  }
+
+  .system-main h2 {
+    font-size: 27px;
+  }
+
+  .flow {
+    margin-top: 8px;
+  }
+
+  .reservoir {
+    min-height: var(--reservoir-height);
+  }
+
+  .reservoir-top {
+    height: var(--reservoir-top-height);
+  }
+
+  .reservoir-bottom {
+    min-height: var(--reservoir-bottom-height);
+    padding: 5px 8px;
+  }
+
+  .drop-wrap {
+    padding-top: 35px;
+  }
+
+  .drop-svg {
+    width: 78px;
+    height: 91px;
+  }
+
+  .level-area {
+    padding: 37px 13px 7px;
+  }
+
+  .name {
+    top: 10px;
+    font-size: 20px;
+  }
+
+  .status {
+    padding: 9px;
+  }
+
+  .rain {
+    min-height: 44px;
+  }
+
+  .dam-icon {
+    height: 45px;
+  }
+
+  .metrics {
+    gap: 3px;
+  }
+
+  .metric-track {
+    height: var(--metric-track-height);
+  }
+
+  .side-panel {
+    max-height: 623px;
+  }
+
+  .cons-chart {
+    height: var(--cons-chart-height);
+  }
+}
+
+@media (min-width:1101px) and (max-height:780px) {
+  .dashboard {
+    transform-origin: top center;
+  }
+
+  .reservoir {
+    min-height: var(--reservoir-height);
+  }
+
+  .reservoir-top {
+    height: var(--reservoir-top-height);
+  }
+
+  .system {
+    min-height: var(--system-height);
+  }
+
+  .side-panel {
+    max-height: 582px;
+  }
+}
+
+/* Ajustes v4: altura Ãºtil, consumos y flechas */
+
+@media (min-width:1101px), print {
+  .dashboard {
+    padding-bottom: 6px;
+  }
+
+  .system {
+    min-height: var(--system-height);
+  }
+
+  .reservoir {
+    min-height: var(--reservoir-height);
+  }
+
+  .reservoir-top {
+    height: var(--reservoir-top-height);
+  }
+
+  .reservoir-bottom {
+    min-height: var(--reservoir-bottom-height);
+  }
+
+  .drop-wrap {
+    padding-top: 38px;
+  }
+
+  .level-area {
+    padding-top: 41px;
+  }
+
+  .side-panel {
+    height: auto;
+    max-height: none;
+  }
+
+  .side-panel .side-sec:first-child {
+    flex: 0 0 160px;
+    overflow: hidden;
+  }
+
+  .cons-chart {
+    height: var(--cons-chart-height);
+    padding-top: 22px;
+    overflow: hidden;
+    align-items: end;
+  }
+
+  .cons-bar {
+    max-height: 104px;
+  }
+
+  .water-reserves {
+    flex: 0 0 184px;
+    grid-template-rows: 92px 92px;
+    padding: 0;
+  }
+
+  .reserve-row {
+    min-height: 88px;
+  }
+
+  .reserve-row .drop-svg {
+    width: 62px;
+    height: 71px;
+  }
+
+  .alerts {
+    margin-top: auto;
+  }
+}
+
+.flow-arrow.red-arrow {
+  transform: translateX(-4px);
+}
+
+/* Ajustes v5: columna derecha compacta y ordenada */
+
+@media (min-width:1101px), print {
+  .side-panel {
+    padding: 7px 10px;
+    display: grid;
+    grid-template-rows: 190px 205px 1fr;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .side-panel .side-sec:first-child {
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0 0 7px;
+  }
+
+  .side-panel h3 {
+    margin: 2px 0 3px;
+    font-size: 19px;
+  }
+
+  .cons-chart {
+    height: var(--cons-chart-height);
+    padding: 25px 2px 0;
+    overflow: hidden;
+    align-items: end;
+  }
+
+  .cons-bar {
+    max-height: 125px;
+    width: var(--cons-bar-width);
+  }
+
+  .water-reserves {
+    height: auto;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: 98px 98px;
+    padding: 4px 0 5px;
+    border-bottom: 2px solid #111;
+  }
+
+  .reserve-row {
+    min-height: 0;
+    grid-template-columns: 1fr 82px;
+  }
+
+  .reserve-row:nth-child(2) {
+    grid-template-columns: 82px 1fr;
+  }
+
+  .reserve-row h4 {
+    font-size: 18px;
+  }
+
+  .reserve-row .drop-svg {
+    width: 66px;
+    height: 76px;
+  }
+
+  .alerts {
+    min-height: 0;
+    margin: 0;
+    padding: 10px 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .alerts h4 {
+    font-size: 18px;
+    margin: 0 0 5px;
+    text-align: left;
+  }
+
+  .alerts small {
+    margin: 1px 0;
+    font-size: 11px;
+    line-height: 13px;
+  }
+
+  .alert {
+    height: 44px;
+    flex: 0 0 44px;
+  }
+}
+
+/* Ajustes v6: una sola linea en Consumos y alerta mas alta */
+
+@media (min-width:1101px), print {
+  .side-panel {
+    grid-template-rows: 205px 195px 1fr;
+  }
+
+  .side-panel .side-sec:first-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .cons-chart {
+    height: var(--cons-chart-height);
+    padding-top: 27px;
+    border-bottom: 2px solid #111;
+    overflow: hidden;
+  }
+
+  .cons-bar {
+    max-height: 137px;
+  }
+
+  .water-reserves {
+    grid-template-rows: 93px 93px;
+    height: 195px;
+    padding-top: 4px;
+  }
+
+  .alerts {
+    padding-top: 4px;
+    justify-content: flex-start;
+  }
+
+  .alerts h4 {
+    margin: 0 0 3px;
+  }
+
+  .alerts small {
+    margin: 0;
+    line-height: 12px;
+  }
+
+  .alert {
+    height: 43px;
+    flex-basis: 43px;
+  }
+}
+
+/* Ajustes v7: replica de la organizacion indicada */
+
+@media (min-width:1101px), print {
+  .side-panel {
+    display: grid;
+    grid-template-rows: 210px 210px 170px;
+    align-content: start;
+    padding: 7px 10px;
+    overflow: hidden;
+  }
+
+  .side-panel .side-sec:first-child {
+    height: 210px;
+    min-height: 210px;
+    padding: 0;
+    border-bottom: 0;
+    overflow: hidden;
+  }
+
+  .side-panel h3 {
+    margin: 2px 0 0;
+    font-size: 19px;
+  }
+
+  .cons-chart {
+    height: var(--cons-chart-height);
+    padding: 25px 2px 0;
+    border-bottom: 2px solid #111;
+    overflow: hidden;
+    align-items: end;
+  }
+
+  .cons-bar {
+    width: var(--cons-bar-width);
+    max-height: 136px;
+  }
+
+  .water-reserves {
+    height: 210px;
+    min-height: 210px;
+    display: grid;
+    grid-template-rows: 101px 101px;
+    padding: 4px 0 5px;
+    border-bottom: 2px solid #111;
+  }
+
+  .reserve-row {
+    min-height: 0;
+  }
+
+  .reserve-row:first-child {
+    grid-template-columns: 1fr 82px;
+  }
+
+  .reserve-row:first-child h4 {
+    text-align: right;
+    padding-right: 8px;
+  }
+
+  .reserve-row:nth-child(2) {
+    grid-template-columns: 82px 1fr;
+  }
+
+  .reserve-row:nth-child(2) h4 {
+    text-align: left;
+    padding-left: 8px;
+  }
+
+  .reserve-row .drop-svg {
+    width: 68px;
+    height: 78px;
+  }
+
+  .alerts {
+    height: 170px;
+    min-height: 170px;
+    margin: 0;
+    padding: 6px 0 0;
+    display: block;
+  }
+
+  .alerts h4 {
+    margin: 0 0 4px;
+    text-align: left;
+    font-size: 18px;
+  }
+
+  .alerts small {
+    display: block;
+    margin: 0;
+    line-height: 13px;
+    font-size: 11px;
+    color: #111;
+  }
+
+  .alert {
+    height: 44px;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+  }
+}
+
+/* Ajustes v8: distribucion lateral fija, sin estiramientos */
+
+@media (min-width:1101px), print {
+  .side-panel {
+    display: block !important;
+    padding: 7px 10px !important;
+    overflow: hidden;
+  }
+
+  .side-panel .side-sec:first-child {
+    display: block;
+    box-sizing: border-box;
+    height: 210px !important;
+    min-height: 210px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden;
+  }
+
+  .side-panel h3 {
+    height: 27px;
+    margin: 2px 0 0 !important;
+    line-height: 25px;
+  }
+
+  .cons-chart {
+    box-sizing: border-box;
+    height: var(--cons-chart-height) !important;
+    padding: 25px 2px 0 !important;
+    margin: 0 !important;
+    border-bottom: 2px solid #111 !important;
+    overflow: hidden;
+  }
+
+  .water-reserves {
+    display: grid !important;
+    box-sizing: border-box;
+    height: 215px !important;
+    min-height: 215px !important;
+    grid-template-rows: 103px 103px !important;
+    padding: 4px 0 5px !important;
+    margin: 0 !important;
+    border-bottom: 2px solid #111 !important;
+    overflow: hidden;
+  }
+
+  .reserve-row {
+    height: 103px !important;
+    min-height: 103px !important;
+  }
+
+  .reserve-row .drop-svg {
+    width: 68px;
+    height: 78px;
+  }
+
+  .alerts {
+    display: block !important;
+    box-sizing: border-box;
+    height: 148px !important;
+    min-height: 148px !important;
+    margin: 0 !important;
+    padding: 5px 0 0 !important;
+    overflow: hidden;
+  }
+
+  .alerts h4 {
+    height: 24px;
+    line-height: 22px;
+    margin: 0 !important;
+    text-align: left;
+  }
+
+  .alerts small {
+    height: 13px;
+    line-height: 13px;
+    margin: 0 !important;
+  }
+
+  .alert {
+    box-sizing: border-box;
+    height: 43px !important;
+    min-height: 43px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Ajustes v9: reparto proporcional de toda la altura lateral */
+
+@media (min-width:1101px), print {
+  .side-panel {
+    display: grid !important;
+    grid-template-rows: 35% 36% 29% !important;
+    align-content: stretch !important;
+    padding: 7px 10px !important;
+    overflow: hidden !important;
+  }
+
+  .side-panel .side-sec:first-child {
+    height: auto !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: 28px 1fr !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .side-panel h3 {
+    height: auto !important;
+    line-height: 25px !important;
+    margin: 0 !important;
+  }
+
+  .cons-chart {
+    height: var(--cons-chart-height) !important;
+    min-height: 0 !important;
+    padding: 26px 2px 0 !important;
+    margin: 0 !important;
+    border-bottom: 2px solid #111 !important;
+    overflow: hidden !important;
+  }
+
+  .cons-bar {
+    width: var(--cons-bar-width) !important;
+    max-height: 145px !important;
+  }
+
+  .water-reserves {
+    height: auto !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: 1fr 1fr !important;
+    padding: 5px 0 !important;
+    margin: 0 !important;
+    border-bottom: 2px solid #111 !important;
+    overflow: hidden !important;
+  }
+
+  .reserve-row {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .reserve-row .drop-svg {
+    width: 70px !important;
+    height: 80px !important;
+  }
+
+  .alerts {
+    height: auto !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-rows: 27px 14px 45px 27px 45px !important;
+    align-content: start !important;
+    margin: 0 !important;
+    padding: 7px 0 0 !important;
+    overflow: hidden !important;
+  }
+
+  .alerts h4 {
+    height: auto !important;
+    line-height: 23px !important;
+    margin: 0 !important;
+  }
+
+  .alerts small {
+    height: auto !important;
+    line-height: 13px !important;
+    margin: 0 !important;
+  }
+
+  .alert {
+    height: 45px !important;
+    min-height: 45px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Ajustes v10: proporciones finales de la tarjeta lateral */
+
+@media (min-width:1101px), print {
+  .side-panel {
+    grid-template-rows: 34% 40% 26% !important;
+  }
+
+  .side-panel .side-sec:first-child {
+    grid-template-rows: 30px 1fr !important;
+  }
+
+  .cons-chart {
+    padding-top: 22px !important;
+  }
+
+  .water-reserves {
+    padding: 8px 0 7px !important;
+  }
+
+  .reserve-row .drop-svg {
+    width: 72px !important;
+    height: 83px !important;
+  }
+
+  .alerts {
+    grid-template-rows: 29px 15px 44px 35px 44px !important;
+    padding: 8px 0 0 !important;
+  }
+
+  .alerts h4 {
+    color: #858585 !important;
+    font-size: 18px !important;
+  }
+
+  .alerts small {
+    color: #6f6f6f !important;
+    font-size: 11px !important;
+  }
+
+  .alerts .alert {
+    width: 106px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    font-size: 18px !important;
+  }
+
+  .alerts .alert:not(.reda) {
+    justify-self: start !important;
+  }
+
+  .alerts .alert.reda {
+    justify-self: end !important;
+  }
+}
+
+/* Ajustes v11 segun anotaciones */
+
+@media (min-width:1101px), print {
+  .side-panel {
+    grid-template-rows: 36% 39% 25% !important;
+  }
+
+  .side-panel .side-sec:first-child {
+    grid-template-rows: 30px 1fr !important;
+  }
+
+  .cons-chart {
+    padding-top: 14px !important;
+  }
+
+  .cons-bar {
+    max-height: 158px !important;
+  }
+
+  .water-reserves {
+    padding: 5px 0 4px !important;
+  }
+
+  .alerts {
+    grid-template-rows: 28px 14px 42px 27px 42px !important;
+    padding: 5px 0 0 !important;
+  }
+
+  .alerts .alert {
+    width: 122px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+
+  .alerts .alert.reda {
+    justify-self: end !important;
+    transform: translateY(-3px);
+  }
+}
+
+/* Ajustes v12: subir grafica sin mover linea y desplazar alerta inferior */
+
+@media (min-width:1101px), print {
+  .cons-chart .cons-col {
+    transform: translateY(-7px) !important;
+  }
+
+  .alerts small:nth-of-type(2) {
+    transform: translateX(22px) !important;
+    width: calc(100% - 22px) !important;
+  }
+
+  .alerts .alert.reda {
+    transform: translate(16px,-3px) !important;
+  }
+}
+
+/* Ajustes v13: alerta compacta, sin huecos y con espaciado armonico */
+
+@media (min-width:1101px), print {
+  .side-panel {
+    grid-template-rows: 36% 40% 24% !important;
+  }
+
+  .alerts {
+    display: grid !important;
+    grid-template-rows: 27px 14px 37px 28px 37px !important;
+    row-gap: 0 !important;
+    align-content: start !important;
+    padding: 6px 0 4px !important;
+    margin: 0 !important;
+  }
+
+  .alerts h4 {
+    margin: 0 !important;
+    line-height: 23px !important;
+    align-self: start !important;
+  }
+
+  .alerts small {
+    margin: 0 !important;
+    line-height: 13px !important;
+    align-self: start !important;
+  }
+
+  .alerts small:nth-of-type(2) {
+    transform: none !important;
+    width: 92px !important;
+    justify-self: end !important;
+    text-align: center !important;
+    line-height: 12px !important;
+  }
+
+  .alerts .alert {
+    width: 122px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-self: start !important;
+  }
+
+  .alerts .alert:not(.reda) {
+    justify-self: start !important;
+    transform: none !important;
+  }
+
+  .alerts .alert.reda {
+    justify-self: end !important;
+    transform: none !important;
+  }
+}
+
+/* Ajustes v14: separacion y alineacion final de la alerta inferior */
+
+@media (min-width:1101px), print {
+  .alerts {
+    grid-template-rows: 27px 14px 37px 34px 37px !important;
+  }
+
+  .alerts small:nth-of-type(2) {
+    width: 96px !important;
+    justify-self: end !important;
+    text-align: center !important;
+    padding-top: 7px !important;
+    transform: translateX(8px) !important;
+  }
+
+  .alerts .alert.reda {
+    width: 122px !important;
+    justify-self: end !important;
+    margin-left: auto !important;
+    transform: translateX(10px) !important;
+  }
+}
+
+/* Ajuste v15: margenes laterales simetricos en las formas de alerta */
+
+@media (min-width:1101px), print {
+  .alerts .alert:not(.reda) {
+    width: 122px !important;
+    justify-self: start !important;
+    transform: none !important;
+  }
+
+  .alerts .alert.reda {
+    width: 122px !important;
+    justify-self: end !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    transform: none !important;
+  }
+}
+
+/* Ajuste v16: igualar visualmente ambos margenes laterales */
+
+@media (min-width:1101px), print {
+  .alerts .alert.reda {
+    justify-self: end !important;
+    transform: translateX(22px) !important;
+  }
+}
+
+/* Ajuste v17: reducir aun mas el margen derecho de la forma roja */
+
+@media (min-width:1101px), print {
+  .alerts .alert.reda {
+    justify-self: end !important;
+    transform: translateX(30px) !important;
+  }
+}
+
+/* Ajuste v18: desplazar mas a la derecha la forma roja */
+
+@media (min-width:1101px), print {
+  .alerts .alert.reda {
+    justify-self: end !important;
+    transform: translateX(38px) !important;
+  }
+}
+
+/* Ajuste v19: texto inferior a la derecha y alineado a la izquierda */
+
+@media (min-width:1101px), print {
+  .alerts small:nth-of-type(2) {
+    width: 104px !important;
+    justify-self: end !important;
+    text-align: left !important;
+    padding-left: 4px !important;
+    transform: translateX(18px) !important;
+  }
+}
+
+/* Ajuste v20: desplazar mas a la derecha el texto inferior */
+
+@media (min-width:1101px), print {
+  .alerts small:nth-of-type(2) {
+    width: 104px !important;
+    justify-self: end !important;
+    text-align: left !important;
+    padding-left: 4px !important;
+    transform: translateX(32px) !important;
+  }
+}
+
+/* Ajuste v21: texto centrado, negrita y desplazado 50 px */
+
+@media (min-width:1101px), print {
+  .alerts small:nth-of-type(2) {
+    width: 104px !important;
+    justify-self: end !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+    padding-left: 0 !important;
+    transform: translateX(50px) !important;
+  }
+}
+
+/* Ajuste v23: separaciones moderadas y forma roja siempre visible */
+
+@media (min-width:1101px), print {
+  .side-panel {
+    grid-template-rows: 36% 38% 26% !important;
+  }
+
+  .alerts {
+    grid-template-rows: 28px 16px 39px 31px 39px !important;
+    row-gap: 2px !important;
+    padding: 6px 0 6px !important;
+    align-content: start !important;
+    overflow: visible !important;
+  }
+
+  .alerts small:first-of-type {
+    align-self: center !important;
+  }
+
+  .alerts small:nth-of-type(2) {
+    align-self: center !important;
+    width: 104px !important;
+    justify-self: end !important;
+    text-align: center !important;
+    font-weight: 700 !important;
+    transform: translateX(50px) !important;
+  }
+
+  .alerts .alert:not(.reda) {
+    align-self: start !important;
+  }
+
+  .alerts .alert.reda {
+    align-self: start !important;
+    justify-self: end !important;
+    width: 122px !important;
+    transform: translateX(30px) !important;
+  }
+}
+
+/* Ajuste v24: igualar el margen derecho de la forma roja con el margen izquierdo de la azul */
+
+@media (min-width:1101px), print {
+  .alerts .alert.reda {
+    justify-self: end !important;
+    transform: translateX(38px) !important;
+  }
+}
+
+/* Ajuste v25: ampliar huecos sin mover los titulos ni las lineas */
+
+@media (min-width:1101px), print {
+  /* CONSUMOS permanece fijo; se suben barras, valores y nombres */
+
+  .cons-chart .cons-col {
+    transform: translateY(-14px) !important;
+  }
+
+  /* ALERTA TEMPRANA y su linea permanecen fijas; se sube solo el contenido central */
+
+  .water-reserves .reserve-row:first-child {
+    transform: translateY(-5px) !important;
+  }
+
+  .water-reserves .reserve-row:nth-child(2) {
+    transform: translateY(-12px) !important;
+  }
+}
+
+/* Ajuste v26: subir ligeramente todo el bloque interior de CONSUMOS */
+
+@media (min-width:1101px), print {
+  .cons-chart .cons-col {
+    transform: translateY(-20px) !important;
+  }
+}
+
+/* Ajuste v27: subir solo la linea sobre ALERTA TEMPRANA */
+
+@media (min-width:1101px), print {
+  .water-reserves {
+    border-bottom: 0 !important;
+    position: relative !important;
+  }
+
+  .water-reserves::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 6px;
+    height: 2px;
+    background: #111;
+  }
+}
+
+/* Ajuste v28: centrar correctamente las tres categorias del grafico */
+
+@media (min-width:1101px), print {
+  .cons-chart {
+    display: grid !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    align-items: end !important;
+    justify-content: stretch !important;
+    column-gap: 0 !important;
+  }
+
+  .cons-chart .cons-col {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    text-align: center !important;
+    transform: translateY(-20px) !important;
+  }
+
+  .cons-chart .cons-bar {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* Ajuste v29: cabecera superior alineada y unidad editable */
+
+.system-main {
+  position: relative;
+}
+
+.system-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 39px;
+  margin: 0 -18px 8px -18px;
+  padding: 0 12px 5px 18px;
+  border-bottom: 2px solid #bfc3c6;
+}
+
+.system-heading h2 {
+  margin: 0 !important;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.unit-label {
+  color: #8a8a8a;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding-bottom: 2px;
+}
+
+@media (min-width:1101px) and (min-height:700px), print {
+  .system-heading {
+    min-height: 34px;
+    margin-bottom: 5px;
+    padding-bottom: 4px;
+  }
+}
+
+/* Ajuste v30: lineas superiores segun referencia */
+
+@media (min-width:1101px), print {
+  .system {
+    position: relative !important;
+  }
+
+  .system-left {
+    border-right: 0 !important;
+    position: relative !important;
+  }
+
+  .system-left::after {
+    content: "";
+    position: absolute;
+    top: 25px;
+    right: var(--system-divider-offset);
+    bottom: 0;
+    width: 2px;
+    background: #bfc3c6;
+  }
+
+  .system-heading {
+    margin: 0 -18px 8px -18px !important;
+    padding: 0 12px 5px 18px !important;
+    border-bottom: 2px solid #bfc3c6 !important;
+  }
+}
+
+/* Ajuste v31: linea vertical completa y union exacta con la horizontal */
+
+@media (min-width:1101px), print {
+  .system-left::after {
+    top: 0 !important;
+    right: var(--system-divider-offset) !important;
+    bottom: 0 !important;
+    width: 2px !important;
+    background: #bfc3c6 !important;
+    z-index: 3 !important;
+  }
+
+  .system-heading {
+    margin-left: -18px !important;
+    border-bottom: 2px solid #bfc3c6 !important;
+  }
+}
+
+/* Ajuste v32: caja de fecha unida a la esquina de las lineas grises */
+
+@media (min-width:1101px), print {
+  .system-main > .period {
+    display: block !important;
+    width: max-content !important;
+    margin-left: -18px !important;
+    margin-top: -8px !important;
+    position: relative !important;
+    z-index: 4 !important;
+  }
+}
+
+/* Ajuste v33: eliminar el tramo de lÃ­nea hasta la fecha y moverla 1 px */
+
+@media (min-width:1101px), print {
+  .system-main > .period {
+    margin-left: -17px !important;
+    margin-top: -10px !important;
+    position: relative !important;
+    z-index: 6 !important;
+    background: #e3e3e3 !important;
+    box-shadow: 0 -3px 0 #e3e3e3 !important;
+  }
+}
+
+/* Ajuste v34: cabecera sin tramo vertical sobre la fecha */
+
+@media (min-width:1101px), print {
+  .system-left::after {
+    top: 47px !important;
+    bottom: 0 !important;
+  }
+
+  .system-main > .period {
+    margin-left: -17px !important;
+    margin-top: -8px !important;
+    box-shadow: none !important;
+    z-index: 6 !important;
+  }
+}
+
+/* Ajuste v35: prolongar la linea vertical hasta la horizontal gris */
+
+@media (min-width:1101px), print {
+  .system-left::after {
+    top: 34px !important;
+    bottom: 0 !important;
+  }
+}
+
+/* BotÃ³n de impresiÃ³n del menÃº lateral */
+
+/* Ãrea imprimible: cabecera Embalses + fecha + panel completo. El menÃº lateral no se imprime. */
+
+/* ==========================================================
+   AJUSTE ACUMULADO FINAL
+   Conserva los cambios anteriores y aÃ±ade el menÃº nuevo.
+   ========================================================== */
+
+/* MenÃº lateral */
+
+/* TipografÃ­a legible conservada */
+
+.system-heading h2,
+.reservoir-top .name,
+.side-panel h3,
+.side-panel h4,
+.alerts h4 {
+  font-family: "Arial Narrow","Roboto Condensed","Segoe UI",Arial,sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: .15px !important;
+  text-shadow: none !important;
+}
+
+.system-heading h2 {
+  font-size: 28px !important;
+  line-height: 1 !important;
+}
+
+.reservoir-top .name {
+  font-size: 20px !important;
+  line-height: 1 !important;
+}
+
+.side-panel h3,
+.side-panel h4,
+.alerts h4 {
+  font-size: 18px !important;
+  line-height: 1.1 !important;
+}
+
+@media (min-width:1101px), print {
+  /* Anchos intactos y alto de 230 px */
+
+  .dashboard {
+    grid-template-columns: 1fr 1fr 190px !important;
+  }
+
+  .reservoir {
+    min-height: var(--reservoir-height) !important;
+  }
+
+  .reservoir-top {
+    height: var(--reservoir-top-height) !important;
+  }
+
+  .reservoir-bottom {
+    min-height: var(--reservoir-bottom-height) !important;
+  }
+
+  /* TÃ­tulos centrados sobre la gota sin moverla */
+
+  .reservoir-top .name {
+    left: 62.5px !important;
+    top: 15px !important;
+    width: max-content !important;
+    max-width: 120px !important;
+    transform: translateX(-50%) !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  /* GrÃ¡fico de cuatro colores compacto */
+
+  .level-area {
+    padding-left: 28px !important;
+    padding-right: 28px !important;
+  }
+
+  .segbar {
+    height: var(--level-bar-height) !important;
+  }
+
+  /* Franja inferior acumulada: Aportaciones mÃ¡s ancha y aire lateral */
+
+  .reservoir-bottom {
+    padding-left: 13px !important;
+    padding-right: 13px !important;
+    grid-template-columns: 132px 24px 48px 24px minmax(0,1fr) !important;
+    column-gap: 5px !important;
+  }
+
+  .reservoir-bottom .rain {
+    width: 132px !important;
+    min-width: 132px !important;
+    padding-right: 3px !important;
+  }
+
+  .reservoir-bottom .rain-val small {
+    white-space: nowrap !important;
+    font-size: 11px !important;
+  }
+
+  .reservoir-bottom .rain-val b {
+    font-size: 15px !important;
+  }
+
+  .reservoir-bottom .flow-arrow {
+    width: 25px !important;
+    height: 21px !important;
+  }
+
+  .reservoir-bottom .dam-icon {
+    width: 47px !important;
+    height: 43px !important;
+  }
+
+  .reservoir-bottom .metric {
+    grid-template-columns: 66px minmax(54px,1fr) 37px !important;
+    gap: 4px !important;
+  }
+
+  .reservoir-bottom .metrics,
+.reservoir-bottom .metric-track {
+    min-width: 0 !important;
+  }
+
+  /* Barras horizontales conservadas */
+
+  .metric-track {
+    height: var(--metric-track-height) !important;
+    background: #edf2f5 !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+  }
+
+  .metric-fill {
+    height: 100% !important;
+    background: #218ebd !important;
+    border-radius: 999px !important;
+  }
+
+  /* Estados elegantes conservados */
+
+  .reservoir-top .status {
+    top: var(--status-top) !important;
+    right: var(--status-right) !important;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: 47% !important;
+    padding: 6px 12px !important;
+    border-radius: var(--status-radius) !important;
+    font: 700 10px/1.1 Arial,sans-serif !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    box-shadow: none !important;
+  }
+
+  .reservoir-top .status:not(.warn) {
+    color: #17743a !important;
+    background: #dff3e5 !important;
+  }
+
+  .reservoir-top .status.warn {
+    color: #725d00 !important;
+    background: #fff4bf !important;
+  }
+}
+
+/* ==========================================================
+   AJUSTE: REDUCCIÃ“N SIMÃ‰TRICA DE LOS 7 GRÃFICOS HORIZONTALES
+   Afecta a Total Sistema y a las seis tarjetas de embalses.
+   ========================================================== */
+
+@media (min-width:1101px), print {
+  /* El bloque completo se reduce y queda centrado en su celda. */
+
+  .system .metrics,
+.reservoir .metrics {
+    width: 92% !important;
+    min-width: 0 !important;
+    justify-self: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Los mÃ¡rgenes internos izquierdo y derecho son idÃ©nticos. */
+
+  .system .metric,
+.reservoir .metric {
+    grid-template-columns: 66px minmax(44px,1fr) 37px !important;
+    column-gap: 4px !important;
+  }
+
+  /* Se conserva el aspecto de dos colores y los extremos redondeados. */
+
+  .system .metric-track,
+.reservoir .metric-track {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 8px !important;
+    background: #edf2f5 !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+  }
+
+  .system .metric-fill,
+.reservoir .metric-fill {
+    height: 100% !important;
+    background: #218ebd !important;
+    border-radius: 999px !important;
+  }
+}
+
+/* ==========================================================
+   AJUSTE: DESPLAZAR A LA DERECHA EL BLOQUE INFERIOR MARCADO
+   Afecta a Aportaciones, flecha verde, presa y flecha roja
+   en las seis tarjetas. Las mÃ©tricas permanecen centradas.
+   ========================================================== */
+
+@media (min-width:1101px), print {
+  /* El padding izquierdo pasa de 13 px a 20 px. Para no cambiar
+     el ancho total de la tarjeta, el espacio se compensa reduciendo
+     la columna flexible de mÃ©tricas. */
+
+  .reservoir-bottom {
+    padding-left: 20px !important;
+    padding-right: 13px !important;
+    grid-template-columns: 132px 24px 48px 24px minmax(0,1fr) !important;
+    column-gap: 5px !important;
+  }
+
+  /* Se conserva el centrado simÃ©trico del grÃ¡fico horizontal. */
+
+  .reservoir-bottom .metrics {
+    width: 92% !important;
+    justify-self: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* ==========================================================
+   AJUSTE: DESPLAZAR TAMBIÃ‰N EL BLOQUE DE TOTAL SISTEMA
+   Afecta a Aportaciones, flecha verde, presa y flecha roja.
+   ========================================================== */
+
+@media (min-width:1101px), print {
+  .system-main .flow {
+    grid-template-columns: 145px 32px 62px 32px minmax(0,1fr) !important;
+    column-gap: 7px !important;
+    padding-left: 7px !important;
+    padding-right: 0 !important;
+  }
+
+  /* Las mÃ©tricas de Total Sistema conservan el 92% y el centrado. */
+
+  .system-main .metrics {
+    width: 92% !important;
+    min-width: 0 !important;
+    justify-self: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
+/* ==========================================================
+   CORRECCIÃ“N VISUAL DE LOS DOS ESPACIOS MARCADOS COMO 1
+   Compensa el espacio transparente interno del SVG de la flecha.
+   ========================================================== */
+
+@media (min-width:1101px), print {
+  /* Seis tarjetas: separaciÃ³n estructural uniforme */
+
+  .reservoir-bottom {
+    grid-template-columns: 132px 25px 47px 25px minmax(0,1fr) !important;
+    column-gap: 10px !important;
+  }
+
+  .reservoir-bottom > .flow-arrow {
+    width: 25px !important;
+    height: 21px !important;
+    justify-self: center !important;
+  }
+
+  .reservoir-bottom > .flow-arrow.green-arrow {
+    transform: none !important;
+  }
+
+  .reservoir-bottom > .flow-arrow.red-arrow {
+    transform: translateX(2px) !important;
+  }
+
+  .reservoir-bottom > .dam-icon,
+.reservoir-bottom > .dam-image {
+    width: 47px !important;
+    height: 43px !important;
+    justify-self: center !important;
+    transform: none !important;
+  }
+
+  .reservoir-bottom > .metrics {
+    width: 92% !important;
+    justify-self: start !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+
+  /* Total Sistema: misma compensaciÃ³n visual */
+
+  .system-main .flow {
+    grid-template-columns: 145px 34px 47px 34px minmax(0,1fr) !important;
+    column-gap: 10px !important;
+  }
+
+  .system-main .flow > .flow-arrow.green-arrow {
+    transform: none !important;
+  }
+
+  .system-main .flow > .flow-arrow.red-arrow {
+    transform: translateX(2px) !important;
+  }
+
+  .system-main .flow > .dam-icon,
+.system-main .flow > .dam-image {
+    width: 47px !important;
+    height: 43px !important;
+    justify-self: center !important;
+    transform: none !important;
+  }
+
+  .system-main .flow > .metrics {
+    width: var(--flow-metrics-width) !important;
+    justify-self: start !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+}
+
+/* ==========================================================
+   AJUSTE FINAL: IGUALAR MÁRGENES DESPLAZANDO TODO A LA DERECHA
+   Se mueve el contenido completo de la franja inferior 7 px.
+   No se cambian tamaños, columnas ni separaciones internas.
+   ========================================================== */
+
+@media (min-width:1101px), print {
+  /* Seis tarjetas de embalses */
+
+  .reservoir-bottom > .rain,
+.reservoir-bottom > .flow-arrow,
+.reservoir-bottom > .dam-icon,
+.reservoir-bottom > .dam-image,
+.reservoir-bottom > .metrics {
+    position: relative !important;
+    left: 7px !important;
+  }
+
+  /* Total Sistema: mismo desplazamiento del conjunto */
+
+  .system-main .flow > .rain,
+.system-main .flow > .flow-arrow,
+.system-main .flow > .dam-icon,
+.system-main .flow > .dam-image,
+.system-main .flow > .metrics {
+    position: relative !important;
+    left: 7px !important;
+  }
+}
+
+/* AJUSTE FINAL: reducir aun mas el margen derecho de la alerta */
+
+@media (min-width:1101px), print {
+  .side-panel .alerts > small:nth-of-type(2) {
+    left: 20px !important;
+    right: auto !important;
+    transform: none !important;
+  }
+
+  .side-panel .alerts > .alert.reda {
+    left: 20px !important;
+    right: auto !important;
+    transform: none !important;
+  }
+}
+
+/* ==========================================================
+   CORRECCION: REDUCIR REALMENTE EL MARGEN DERECHO
+   Se anula left/right y se mueve visualmente el conjunto inferior.
+   ========================================================== */
+
+@media (min-width:1101px), print {
+  .side-panel .alerts > small:nth-of-type(2),
+.side-panel .alerts > .alert.reda {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    margin: 0 !important;
+    justify-self: end !important;
+    transform: translateX(28px) !important;
+  }
+}
+
+/* AJUSTE MILIMETRICO FINAL: igualar margen derecho con izquierdo */
+
+@media (min-width:1101px), print {
+  .side-panel .alerts > small:nth-of-type(2),
+.side-panel .alerts > .alert.reda {
+    left: auto !important;
+    right: auto !important;
+    justify-self: end !important;
+    transform: translateX(38px) !important;
+  }
+}
+
+/* CORRECCION DE DIRECCION: mover texto inferior y forma roja a la izquierda */
+
+@media (min-width:1101px), print {
+  .side-panel .alerts > small:nth-of-type(2),
+.side-panel .alerts > .alert.reda {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    justify-self: end !important;
+    transform: translateX(18px) !important;
+  }
+}
+
+/* ==========================================================
+   AJUSTE FINAL: TAMAÑO DE GOTAS, TEXTO INTERIOR Y FECHA DEL SISTEMA
+   No modifica la franja inferior, las alertas ni el menú lateral.
+   ========================================================== */
+
+@media (min-width:1101px), print {
+  /* Gotas de las seis tarjetas: un poco más anchas y con texto mayor. */
+
+  .reservoir .drop-svg {
+    width: var(--drop-reservoir-width) !important;
+    height: var(--drop-reservoir-height) !important;
+  }
+
+  .reservoir .drop-text {
+    font-size: 17px !important;
+    font-weight: 900 !important;
+  }
+
+  /* Gota de TOTAL SISTEMA: mayor que las seis gotas anteriores. */
+
+  .system-left .drop-svg {
+    width: var(--drop-system-width) !important;
+    height: var(--drop-system-height) !important;
+  }
+
+  .system-left .drop-text {
+    font-size: 18px !important;
+    font-weight: 900 !important;
+  }
+
+  /* Desplazar solo el texto de estado ligeramente hacia la derecha. */
+
+  .system-left .sys-date {
+    position: relative !important;
+    left: 60px !important;
+  }
+}
+
+/* ==========================================================
+   AJUSTE FINAL: AMPLIAR HACIA ARRIBA LOS 7 GRAFICOS DE 4 COLORES
+   Conserva exactamente el tamano actual de todas las gotas.
+   ========================================================== */
+
+@media (min-width:1101px), print {
+  /* Se mantiene el tamano actual de las seis gotas. */
+
+  .reservoir .drop-svg {
+    width: var(--drop-reservoir-width) !important;
+    height: var(--drop-reservoir-height) !important;
+  }
+
+  .reservoir .drop-text {
+    font-size: 17px !important;
+  }
+
+  /* Se mantiene el tamano mayor de la gota de TOTAL SISTEMA. */
+
+  .system-left .drop-svg {
+    width: var(--drop-system-width) !important;
+    height: var(--drop-system-height) !important;
+  }
+
+  .system-left .drop-text {
+    font-size: 18px !important;
+  }
+
+  /* El conjunto completo sube 8 px: barra, porcentaje y flecha. */
+
+  .reservoir .level,
+.system-left .level {
+    transform: translateX(-8px) !important;
+  }
+
+  /* La altura aumenta de 28 px a 36 px hacia arriba. */
+
+  .reservoir .segbar,
+.system-left .segbar {
+    height: 36px !important;
+  }
+}
+
+@media (min-width:1101px), print {
+  .reservoir .level-area {
+    transform: translate(-10px, -8px) !important;
+  }
+
+  .reservoir .segbar {
+    height: var(--level-bar-height) !important;
+  }
+
+  .reservoir .level {
+    transform: none !important;
+  }
+
+  /* TOTAL SISTEMA conserva posición y tamaño actuales. */
+
+  .system-left .segbar {
+    height: var(--level-bar-height) !important;
+  }
+}
+
+/* ==========================================================
+   AJUSTE FINAL: GRAFICO DE CONSUMOS MAS ALTO Y BARRAS MAS ANCHAS
+   No se mueve el titulo CONSUMOS ni la linea horizontal inferior.
+   ========================================================== */
+
+@media (min-width:1101px), print {
+  /* La zona del grafico conserva su posicion y aprovecha mas altura. */
+
+  .side-panel .side-sec:first-child {
+    grid-template-rows: 30px 1fr !important;
+  }
+
+  .side-panel .cons-chart {
+    height: auto !important;
+    min-height: 0 !important;
+    padding-top: 4px !important;
+    padding-bottom: 10px !important;
+    align-items: end !important;
+    overflow: hidden !important;
+  }
+
+  /* Subir el conjunto interior para reducir el hueco bajo CONSUMOS. */
+
+  .side-panel .cons-chart .cons-col {
+    height: 100% !important;
+    transform: translateY(-8px) !important;
+  }
+
+  /* Barras mas anchas y con mayor altura util, sin cambiar posiciones. */
+
+  .side-panel .cons-chart .cons-bar {
+    width: var(--cons-bar-width) !important;
+    max-height: 168px !important;
+  }
+}
+
+/* ==========================================================
+   IMPRESION v2: A4 horizontal, una pagina, adaptable al area util
+   - Las reglas de escritorio se aplican tambien en print (", print").
+   - .main se maqueta a un ancho fijo de 1280 px y se reduce con
+     transform:scale() para ocupar exactamente el area imprimible
+     (100vw x 100vh en impresion), sea cual sea el margen o el papel.
+   ========================================================== */
+
+@page {
+  size: A4 landscape;
+  margin: 5mm;
+}
+
+@media print {
+  .dashboard {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 6px 10px 0 !important;
+    gap: 6px !important;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr) 190px !important;
+  }
+
+  .system {
+    grid-column: 1/4 !important;
+  }
+
+  .side-panel {
+    grid-column: 3 !important;
+    grid-row: 2/5 !important;
+  }
+
+  .card {
+    box-shadow: none !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
+/* Impresion como imagen: solo se imprime la imagen del panel, A4 horizontal */
+
+#printImg {
+  display: none;
+}
+
+@media print {
+  body.print-image .sidebar,
+body.print-image .main {
+    display: none !important;
+  }
+
+  html:has(body.print-image),
+body.print-image {
+    height: auto !important;
+    overflow: visible !important;
+    width: auto !important;
+  }
+
+  body.print-image #printImg {
+    display: block !important;
+    width: 100% !important;
+    height: 199mm !important;
+    object-fit: contain !important;
+    object-position: center top !important;
+    margin: 0 auto !important;
+  }
+}
+
+/* ==========================================================
+   TOTAL SISTEMA: CABECERA Y BLOQUE INTERIOR A LA DERECHA
+   - Desplaza conjuntamente titulo, fecha, aportaciones, presa y metricas.
+   - Recorta la linea horizontal y mueve linea vertical.
+   - No modifica las seis tarjetas de embalses.
+   ========================================================== */
+
+@media (min-width:1101px) {
+  .system-main {
+    transform: translateX(var(--system-main-shift)) !important;
+    width: calc(100% - var(--system-main-cut)) !important;
+  }
+
+  .system-main .system-heading {
+    margin-left: -4px !important;
+    margin-right: 2px !important;
+    padding-left: 4px !important;
+    padding-right: 0 !important;
+  }
+
+  .system-main > .period {
+    margin-left: -3px !important;
+  }
+
+  .system-main .flow {
+    left: 0 !important;
+  }
+
+  .system-left::after {
+    right: var(--system-divider-offset) !important;
+  }
+}
+
+/* ==========================================================
+   TOTAL SISTEMA: ENSANCHAR Y DESPLAZAR GRAFICO DE 4 COLORES
+   Mueve conjuntamente porcentaje, indicador y barra; no mueve la gota.
+   ========================================================== */
+
+@media (min-width:1101px) {
+  .system-left .level {
+    width: calc(100% + var(--system-level-extra-width)) !important;
+    transform: translateX(var(--system-level-shift)) !important;
+  }
+}

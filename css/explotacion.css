@@ -1,0 +1,351 @@
+/* ========================================================================== 
+   PANTALLA EXPLOTACIÓN - CSS CONSOLIDADO
+   Cada componente se define una sola vez. Los ajustes habituales están aquí.
+   ========================================================================== */
+:root {
+  --op-border: #c9ced2;
+  --op-shadow: 0 2px 8px #0002;
+  --op-teal: #008f85;
+  --op-blue: #22b9e7;
+  --op-green: #79c943;
+  --op-yellow: #f2d92c;
+  --op-red: #ef3340;
+
+  /* Lienzo y reparto general */
+  --op-max-width: var(--dashboard-max-width, 1500px);
+  --op-gap: var(--dashboard-gap, 8px);
+  --op-top-row: 280px;
+  --op-left-column: 1.52fr;
+  --op-right-column: .98fr;
+
+  /* Cabeceras */
+  --op-heading-height: 47px;
+  --heading-period-font-size: 10px;
+  --heading-period-icon-size: 15px;
+  --heading-period-height: 27px;
+
+  /* CAPTACIÓN */
+  --capture-left-width: 68%;
+  --capture-chart-width: 282px;
+  --capture-chart-height: 142px;
+  --capture-chart-title-size: 12px;
+  --capture-chart-title-offset-y: 12px;
+  --capture-legend-size: 10px;
+  --capture-legend-offset-y: -26px;
+  --capture-legend-swatch-size: 14px;
+  --capture-dam-width: 104px;
+  --capture-dam-height: 74px;
+  --capture-period-label-size: 12px;
+  --capture-period-date-size: 11px;
+
+  /* ENERGÍA */
+  --energy-module-width: 150px;
+  --energy-module-height: 88px;
+  --energy-modules-top: 76px;
+  --energy-subtitle-size: 16px;
+  --energy-subtitle-offset-y: 6px;
+  --energy-terminal-width: 10px;
+  --energy-terminal-height: 32px;
+
+  /* POTABILIZACIÓN: modificar solo estas variables para ETAP */
+  --etap-width: 305px;
+  --etap-height: 185px;
+  --etap-offset-x: 67px;
+  --reactives-width: 282px;
+  --reactives-padding-y: 7px;
+  --reactives-row-gap: 5px;
+  --reactives-value-height: 25px;
+  --treatment-quality-width: 198px;
+  --treatment-quality-label-size: 11px;
+  --treatment-input-offset-y: -6px;
+  --treatment-output-offset-y: 12px;
+  --stock-silo-height: 110px;
+  --stock-offset-y: 18px;
+  /* Desplaza agua de entrada, Reactivos, flecha, ETAP y agua de salida */
+  --treatment-content-offset-y: 14px;
+}
+
+/* ========================================================================== 
+   ESTRUCTURA GENERAL
+   ========================================================================== */
+a.nav-btn,
+a.nav-btn:link,
+a.nav-btn:visited,
+a.nav-btn:hover,
+a.nav-btn:active { color: inherit; text-decoration: none; }
+
+.explotacion-page {
+  width: 100%;
+  max-width: var(--op-max-width);
+  height: calc(100vh - 58px);
+  min-height: 0;
+  margin: 0 auto;
+  padding: 8px 10px 6px;
+  overflow: hidden;
+}
+
+.operations-grid {
+  width: 100%;
+  max-width: var(--op-max-width);
+  height: 100%;
+  min-height: 0;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, var(--op-left-column)) minmax(475px, var(--op-right-column));
+  grid-template-rows: var(--op-top-row) minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-areas:
+    "capture energy"
+    "treatment distribution"
+    "treatment notes";
+  gap: var(--op-gap);
+}
+
+.op-card {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--op-border);
+  border-radius: 10px;
+  box-shadow: var(--op-shadow);
+}
+
+.card-heading {
+  min-height: 42px;
+  padding: 7px 12px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid #d7dbde;
+}
+.card-heading h2 { margin: 0; font: 800 22px/1 "Arial Narrow","Segoe UI",Arial,sans-serif; letter-spacing: .2px; }
+.card-heading p,.card-heading .unit { margin: 4px 0 0; color: #70808a; font-size: 10px; }
+.unit { white-space: nowrap; }
+
+/* ========================================================================== 
+   CAPTACIÓN
+   ========================================================================== */
+.captacion-card { grid-area: capture; }
+.capture-heading {
+  height: var(--op-heading-height);
+  min-height: var(--op-heading-height);
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+  background: linear-gradient(180deg,#fff 0%,#f7f7f7 58%,#e4e4e4 100%);
+  border-bottom: 1px solid #cfd4d7;
+}
+.capture-heading h2 { margin: 0; font: 900 27px/1 "Arial Narrow","Roboto Condensed","Segoe UI",Arial,sans-serif; }
+.capture-layout {
+  height: calc(var(--op-top-row) - var(--op-heading-height));
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0,var(--capture-left-width)) minmax(255px,calc(100% - var(--capture-left-width)));
+}
+.capture-storage { min-width: 0; display: grid; grid-template-rows: 82px minmax(0,1fr); border-right: 2px solid #c3c7c9; }
+.capture-summary { min-width: 0; display: grid; grid-template-columns: minmax(245px,1fr) 205px; align-items: start; }
+.capture-period-copy { padding: 12px 12px 0; text-align: center; color: #667984; font-size: var(--capture-period-label-size); line-height: 1.2; }
+.capture-period-copy strong { display: block; color: #4e6572; font-size: var(--capture-period-label-size); font-weight: 900; }
+.capture-period-copy span { display: inline-block; margin-top: 7px; padding: 5px 12px; color: #174e73; background: #dcecf6; border-radius: 8px; font-size: var(--capture-period-date-size); font-weight: 900; }
+.capture-total {
+  position: relative;
+  width: 205px;
+  height: 63px;
+  justify-self: end;
+  padding: 7px 15px 7px 24px;
+  display: grid;
+  grid-template-columns: 1fr 86px;
+  align-items: center;
+  overflow: hidden;
+  color: #fff;
+  background: radial-gradient(circle at 82% 18%,#72e4ff 0 7%,transparent 8%),linear-gradient(135deg,#08a9dc,#22c6ed 58%,#0584bd);
+  border-radius: 0 0 0 19px;
+  border-bottom: 4px solid #047aa8;
+}
+.capture-total span { font-size: 16px; font-weight: 900; }
+.capture-total strong { justify-self: center; font-size: 35px; line-height: 1; text-shadow: 0 2px 0 #0080aa; }
+.capture-total small { display: none; }
+.capture-list { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); align-items: center; gap: 8px; padding: 0 14px 5px; }
+.capture-item { min-width: 0; display: grid; grid-template-rows: auto auto var(--capture-dam-height); justify-items: center; align-items: end; text-align: center; }
+.capture-item strong { color: #00a63b; font: 900 27px/1 "Arial Narrow","Roboto Condensed",Arial,sans-serif; }
+.capture-item small { min-height: 25px; margin-top: 5px; color: #00913a; font: 900 12px/1.05 "Arial Narrow",Arial,sans-serif; text-transform: uppercase; }
+.capture-item img { width: var(--capture-dam-width); height: var(--capture-dam-height); object-fit: contain; }
+.capture-daily { min-width: 0; padding: 8px 5px 4px; display: grid; grid-template-rows: auto minmax(0,1fr) auto; align-items: center; overflow: visible; }
+.capture-daily h3 { justify-self: center; margin: 0; padding: 5px 10px; color: #174e73; background: #dcecf6; border-radius: 8px; font: 900 var(--capture-chart-title-size)/1.1 "Arial Narrow",Arial,sans-serif; white-space: nowrap; transform: translateY(var(--capture-chart-title-offset-y)); }
+.daily-chart { width: var(--capture-chart-width); height: var(--capture-chart-height); margin: 0 auto; display: grid; place-items: center; }
+.daily-pie-svg { width: 100%; height: 100%; display: block; overflow: visible; filter: drop-shadow(0 5px 4px #0003); }
+.daily-pie-svg .pie-top-sector { stroke: #fff; stroke-width: 1.3; }
+.daily-pie-svg .pie-number { fill: #fff; font: 900 18px Arial,sans-serif; text-anchor: middle; dominant-baseline: middle; }
+.daily-legend { width: 100%; min-width: 0; display: flex; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 9px; margin-top: var(--capture-legend-offset-y); padding: 0 2px 3px; color: #68777f; font-size: var(--capture-legend-size); font-weight: 700; white-space: nowrap; }
+.daily-legend span { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; white-space: nowrap; }
+.daily-legend br { display: none; }
+.daily-legend i { width: var(--capture-legend-swatch-size); height: var(--capture-legend-swatch-size); display: inline-block; }
+.daily-legend .minilla i { background: #5b99d1; }
+.daily-legend .gergal i { background: #d9bae9; }
+.daily-legend .melonares i { background: #f07a24; }
+
+/* ========================================================================== 
+   ENERGÍA
+   ========================================================================== */
+.energy-card { grid-area: energy; background: #fff; }
+.energy-card .energy-heading-final {
+  position: relative;
+  height: var(--op-heading-height);
+  min-height: var(--op-heading-height);
+  display: block;
+  padding: 0 14px;
+  text-align: center;
+  background: linear-gradient(180deg,#edf7e7,#dcefd3);
+  border-bottom: 1px solid #cedec8;
+}
+.energy-card .energy-heading-final h2 { position: absolute; inset: 0; margin: 0; font: 900 29px/47px Georgia,"Times New Roman",serif; pointer-events: none; }
+.energy-period-final { position: absolute; right: 10px; top: 50%; z-index: 2; min-height: var(--heading-period-height); display: flex; align-items: center; gap: 6px; padding: 5px 9px; transform: translateY(-50%); color: #41604f; background: #ffffffc4; border: 1px solid #b9d1b4; border-radius: 7px; font-size: var(--heading-period-font-size); font-weight: 900; line-height: 1; white-space: nowrap; }
+.energy-period-final svg { width: var(--heading-period-icon-size); height: var(--heading-period-icon-size); flex: 0 0 var(--heading-period-icon-size); fill: none; stroke: #4d7b5a; stroke-width: 2; }
+.energy-card .energy-grid { position: relative; height: calc(var(--op-top-row) - var(--op-heading-height)); min-height: 0; padding: 10px 13px 6px; }
+.energy-subtitle-final { margin: 0; color: #009d93; font: 900 var(--energy-subtitle-size)/1.1 Arial,sans-serif; transform: translateY(var(--energy-subtitle-offset-y)); }
+.energy-modules-final { position: absolute; left: 13px; right: 13px; top: var(--energy-modules-top); display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 28px; }
+.energy-module-final { display: grid; place-items: center; min-width: 0; }
+.energy-module-shell { position: relative; width: var(--energy-module-width); height: var(--energy-module-height); overflow: visible; background: #fff; border: 7px solid #07988f; border-radius: 11px; box-shadow: 7px 7px 0 #b8c2c5,0 3px 8px #1f485d18; }
+.energy-module-shell::after { content: ""; position: absolute; right: calc((var(--energy-terminal-width) + 7px) * -1); top: 50%; z-index: 0; width: var(--energy-terminal-width); height: var(--energy-terminal-height); transform: translateY(-50%); background: #77888d; border-radius: 0 4px 4px 0; box-shadow: 2px 2px 2px #263d4b22; }
+.energy-module-face { width: 100%; height: 100%; display: grid; grid-template-columns: 49px minmax(0,1fr); align-items: center; gap: 3px; padding: 6px; }
+.energy-turbine { width: 44px; height: 44px; }
+.energy-turbine-ring { fill: #e6f7f4; stroke: #0a9e94; stroke-width: 2.5; }
+.energy-turbine-blade { fill: #13b6aa; stroke: #078f87; stroke-width: .8; }
+.energy-turbine-hub { fill: #087c75; }
+.energy-module-data { min-width: 0; text-align: center; }
+.energy-value-line { display: flex; align-items: baseline; justify-content: center; gap: 4px; }
+.energy-value-line strong { color: #008f87; font: 900 26px/1 Arial,sans-serif; }
+.energy-value-line small { color: #687c77; font-size: 7px; font-weight: 800; }
+.energy-module-data > span { display: block; margin-top: 5px; color: #066f69; font: 900 12px/1 Arial,sans-serif; white-space: nowrap; }
+
+/* ========================================================================== 
+   POTABILIZACIÓN
+   ETAP es un fondo visual: cambiar sus variables NO mueve los demás elementos.
+   ========================================================================== */
+.treatment-card { grid-area: treatment; min-height: 0; display: grid; grid-template-rows: var(--op-heading-height) minmax(0,356px) minmax(154px,1fr); }
+.treatment-card > .card-heading { position: relative; display: block; height: var(--op-heading-height); min-height: var(--op-heading-height); padding: 0 12px; overflow: visible; text-align: center; background: linear-gradient(180deg,#e4f1fb,#b9d6ed); border-bottom: 1px solid #bdd0dd; }
+.treatment-card > .card-heading > div { display: contents; }
+.treatment-card > .card-heading h2 { position: absolute; inset: 0; margin: 0; color: #1e3544; font: 900 27px/47px Georgia,"Times New Roman",serif; pointer-events: none; }
+.treatment-card > .card-heading .unit { position: absolute; right: 10px; top: 50%; width: 184px; height: var(--heading-period-height); margin: 0; overflow: hidden; transform: translateY(-50%); color: transparent; background: #ffffffc9 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3' y='5' width='18' height='16' rx='2' fill='none' stroke='%234d7b5a' stroke-width='2'/%3E%3Cpath d='M7 3v4M17 3v4M3 10h18' fill='none' stroke='%234d7b5a' stroke-width='2'/%3E%3C/svg%3E") 8px center/var(--heading-period-icon-size) var(--heading-period-icon-size) no-repeat; border: 1px solid #9fbdd2; border-radius: 7px; font-size: 0; }
+.treatment-card > .card-heading .unit::before { content: "01/10/2023 – 01/11/2023"; position: absolute; inset: 0 4px 0 27px; display: grid; place-items: center; color: #41604f; font-size: var(--heading-period-font-size); font-weight: 900; line-height: 1; }
+.treatment-card > .card-heading p { position: absolute; right: 12px; top: 54px; z-index: 5; margin: 0; color: #9aa2a6; font-size: 9px; white-space: nowrap; }
+.treatment-card .treatment-body { min-height: 0; height: auto; padding: 18px 12px 4px; display: grid; grid-template-columns: 250px minmax(0,1fr); grid-template-rows: 62px 168px 62px; grid-template-areas: "entry-label entry-values" "reactives process" "output-label output-values"; column-gap: 14px; row-gap: 8px; align-items: center; transform: translateY(var(--treatment-content-offset-y));}
+.treatment-card .water-column { display: contents; }
+.treatment-card .water-column:first-child > h3 { grid-area: entry-label; transform: translateY(var(--treatment-input-offset-y)); }
+.treatment-card .water-column:first-child > .quality-grid { grid-area: entry-values; transform: translate(-28px,var(--treatment-input-offset-y)); }
+.treatment-card .water-column:last-child > h3 { grid-area: output-label; transform: translateY(var(--treatment-output-offset-y)); }
+.treatment-card .water-column:last-child > .quality-grid { grid-area: output-values; transform: translate(-28px,var(--treatment-output-offset-y)); }
+.treatment-card .water-column h3 { margin: 0; color: #777; text-align: center; font: 900 19px/1.04 "Arial Narrow",Arial,sans-serif; }
+.treatment-card .quality-grid { display: grid; grid-template-columns: repeat(3,minmax(0,var(--treatment-quality-width))); justify-content: start; gap: 14px; align-content: center; transform: translateX(-28px); }
+.treatment-card .quality-box { width: var(--treatment-quality-width); height: 68px; min-height: 68px; padding: 0; display: grid; grid-template-rows: 26px 42px; overflow: hidden; color: #fff; border-radius: 8px; text-align: center; }
+.treatment-card .quality-box small { display: grid; place-items: center; padding: 0 5px; background: #ffffff22; font-size: var(--treatment-quality-label-size); font-weight: 900; line-height: 1.05; }
+.treatment-card .quality-box strong { display: grid; place-items: center; font: 900 26px/1 Arial,sans-serif; }
+.treatment-card .quality-ok { background: linear-gradient(135deg,#71c94e,#9bd961); }
+.treatment-card .quality-warn { background: linear-gradient(135deg,#efd815,#fff000); color: #866f00; }
+.treatment-card .quality-bad { background: linear-gradient(135deg,#f03a42,#ff575e); }
+.treatment-card .plant-flow { grid-column: 1/-1; grid-row: 2; height: 168px; display: grid; grid-template-columns: 294px 92px minmax(0,1fr); gap: 14px; align-items: center; }
+.treatment-card .reactives { width: var(--reactives-width); margin-left: 31px; padding: var(--reactives-padding-y) 14px; background: linear-gradient(135deg,#fff,#f5f8fa); border: 1px solid #d5dde1; border-left: 9px solid #7940b5; border-radius: 11px; box-shadow: 0 4px 11px #263f4c1b; }
+.treatment-card .reactives h3 { margin: 0 0 7px; color: #656f75; font: 900 20px/1 Arial,sans-serif; }
+.treatment-card .reactive-list { display: grid; gap: var(--reactives-row-gap); }
+.treatment-card .reactive-row { display: grid; grid-template-columns: minmax(0,1fr) 94px; gap: 10px; align-items: center; }
+.treatment-card .reactive-row span { color: #344b58; font-size: 12px; }
+.treatment-card .reactive-row b { min-height: var(--reactives-value-height); display: grid; place-items: center; padding: 4px 9px; color: #233d4c; background: linear-gradient(#f0f2f4,#dfe4e6); border: 1px solid #d1d8dc; border-radius: 16px; font-size: 12px; }
+.treatment-card .flow-arrow-svg:not(.out) { width: 86px; height: 52px; transform: translateX(30px); background: center/86px 52px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 110 66'%3E%3Cpath d='M4 22H65V7L105 33 65 59V44H4Z' fill='%23eef3f6' stroke='%23263f4d' stroke-width='3'/%3E%3C/svg%3E"); filter: drop-shadow(0 3px 3px #1d33422e); }
+.treatment-card .flow-arrow-svg:not(.out) svg,.treatment-card .flow-arrow-svg.out { display: none; }
+.treatment-card .etap-figure {
+  grid-column: 3;
+  position: relative;
+  width: 100%;
+  height: 168px;
+  min-width: 0;
+  margin: 0;
+  overflow: visible;
+}
+.treatment-card .etap-figure::before {
+  content: "";
+  position: absolute;
+  left: var(--etap-offset-x);
+  top: 50%;
+  width: var(--etap-width);
+  height: var(--etap-height);
+  transform: translateY(-50%);
+  background: url("../ICONOS/ETAP.svg") center/100% 100% no-repeat;
+  pointer-events: none;
+}
+.treatment-card .etap-figure h3,.treatment-card .etap-figure svg,.treatment-card .etap-figure img { display: none; }
+.treatment-card .stock-section { min-height: 154px; overflow: hidden; padding: 0 12px 5px; transform: translateY(var(--stock-offset-y)); }
+.treatment-card .stock-heading { min-height: 30px; margin: 0 -12px 5px; padding: 0 12px; display: flex; justify-content: space-between; align-items: center; color: #fff; background: #a8acad; }
+.treatment-card .stock-heading h3 { margin: 0; font: 900 17px/30px Georgia,"Times New Roman",serif; }
+.treatment-card .stock-heading span { color: #fff; font-size: 9px; }
+.treatment-card .silo-grid { min-height: var(--stock-silo-height); display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; align-items: end; }
+.treatment-card .silo-card { min-height: var(--stock-silo-height); display: grid; grid-template-columns: 1fr 68px; gap: 8px; align-items: end; }
+.treatment-card .silo-visual { position: relative; height: var(--stock-silo-height); }
+.treatment-card .silo-svg { width: 100%; height: 100%; display: block; }
+.treatment-card .silo-shell { fill: #fbfcfd; stroke: #626f75; stroke-width: 2.5; }
+.treatment-card .silo-fill { fill: var(--fill,#b5d7e8); clip-path: url(#siloClip); }
+.treatment-card .silo-label { position: absolute; left: 12%; right: 12%; top: var(--label-top,32%); display: flex; justify-content: space-between; gap: 4px; color: #12612d; font-size: 9px; font-weight: 900; transform: translateY(-50%); }
+.treatment-card .silo-label span { padding: 3px 5px; background: #fff; border-radius: 10px; white-space: nowrap; }
+.treatment-card .silo-info strong { display: block; font-size: 12px; }
+.treatment-card .silo-info small { display: block; margin-top: 3px; color: #728087; font-size: 9px; }
+
+/* ========================================================================== 
+   DISTRIBUCIÓN Y NOTAS
+   ========================================================================== */
+.distribution-card { grid-area: distribution; min-height: 0; }
+.distribution-top { padding: 12px; display: grid; gap: 8px; }
+.dist-kpi { min-height: 70px; display: grid; grid-template-columns: 54px 1fr auto; grid-template-rows: auto auto; align-items: center; padding: 8px 10px; border: 1px solid #ccd3d7; border-radius: 7px; box-shadow: 0 2px 5px #0001; }
+.dist-kpi .dist-icon { grid-row: 1/3; width: 42px; height: 42px; display: grid; place-items: center; color: #178ac4; background: #e6f4fb; border-radius: 50%; }
+.dist-kpi svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.dist-kpi small { font-size: 9px; color: #5f6f77; font-weight: 800; }
+.dist-kpi strong { grid-column: 3; grid-row: 1/3; font-size: 28px; }
+.dist-kpi em { grid-column: 3; grid-row: 2; justify-self: end; align-self: end; font-style: normal; font-size: 10px; }
+.dist-kpi.alerts .dist-icon { color: #df3a43; background: #ffe6e8; }
+.dist-kpi.efficiency .dist-icon { color: #7a43be; background: #f1e8ff; }
+.distribution-divider { height: 1px; margin: 0 12px; background: #aeb7bc; }
+.gauge-section { padding: 12px; }
+.gauge-section h3 { margin: 0 0 4px; text-align: center; font: 800 14px "Arial Narrow",Arial,sans-serif; }
+.gauge { position: relative; max-width: 310px; margin: auto; }
+.gauge svg { width: 100%; display: block; }
+.gauge path { fill: none; stroke-width: 28; }
+.gauge-red { stroke: #ff616a; }
+.gauge-green { stroke: #00a84f; }
+.gauge-needle { stroke: #111; stroke-width: 5; transform-origin: 130px 125px; }
+.limit { position: absolute; top: 29%; padding: 4px 7px; border-radius: 5px; color: #fff; font-weight: 900; font-size: 11px; }
+.limit.min { left: 5%; background: #ff9a5d; }
+.limit.max { right: 5%; background: #9254d3; }
+.gauge-value { position: absolute; left: 50%; bottom: 2%; transform: translateX(-50%); min-width: 96px; padding: 8px 12px; text-align: center; background: #fff; border: 2px solid #52626b; border-radius: 8px; }
+.gauge-value strong { font-size: 24px; }
+.gauge-value small { display: block; font-size: 9px; }
+.notes-card { grid-area: notes; min-height: 0; }
+.notes-card ul { margin: 0; padding: 14px 28px 20px; font-size: 12px; line-height: 1.5; }
+.notes-card li + li { margin-top: 7px; }
+
+/* ========================================================================== 
+   RESPONSIVE E IMPRESIÓN
+   ========================================================================== */
+@media (max-width: 1180px) {
+  .explotacion-page { height: auto; overflow: visible; }
+  .operations-grid { height: auto; grid-template-columns: 1fr; grid-template-rows: auto; grid-template-areas: "capture" "energy" "treatment" "distribution" "notes"; }
+}
+
+@media (max-width: 760px) {
+  .capture-layout,.treatment-card .treatment-body { grid-template-columns: 1fr; height: auto; }
+  .capture-storage { border-right: 0; }
+  .capture-list,.energy-modules-final,.treatment-card .quality-grid,.treatment-card .plant-flow,.treatment-card .silo-grid { grid-template-columns: 1fr; transform: none; }
+  .energy-card .energy-grid { height: auto; }
+  .energy-modules-final { position: static; margin-top: 20px; }
+  .treatment-card { grid-template-rows: auto; }
+  .treatment-card .water-column { display: grid; }
+  .treatment-card .reactives { width: 100%; margin-left: 0; }
+  .treatment-card .etap-figure { height: 190px; }
+}
+
+@media print {
+  @page { size: A4 landscape; margin: 5mm; }
+  .sidebar,.topbar .print-btn { display: none!important; }
+  .main { margin: 0!important; }
+  .topbar { height: 44px!important; }
+  .explotacion-page { height: auto!important; max-width: none!important; padding: 4px!important; overflow: visible!important; }
+  .operations-grid { max-width: none!important; height: auto!important; gap: 4px!important; }
+  .op-card { box-shadow: none!important; break-inside: avoid!important; }
+}
