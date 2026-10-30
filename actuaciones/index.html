@@ -12,9 +12,7 @@
  <body>
   <aside class="sidebar">
    <div class="brand">
-    <div class="brand-mark">
-     💧
-    </div>
+    <img class="brand-logo" src="../ICONOS/logo.svg" alt="EMASESA">
     <div>
      <b>
       CONTROL HÍDRICO
@@ -85,26 +83,44 @@
    </div>
   </aside>
   <div class="main">
-   <header class="topbar">
-    <h1 id="pageTitle">
-     ACTUACIONES
-    </h1>
-    <label id="dateFilter">
-     Fecha de consulta
-     <input id="fecha" max="2024-09-30" min="2023-10-01" type="date" value="2024-02-29"/>
-    </label>
+   <header class="topbar actuaciones-topbar">
+    <h1 id="pageTitle">ACTUACIONES</h1>
+    <div class="act-toolbar">
+     <div class="shift-box"><span>Desplazar meses:</span><button id="prevMonth" type="button">−</button><span id="shiftValue">0 meses</span><button id="nextMonth" type="button">+</button></div>
+     <button class="primary-btn" id="newActBtn" type="button">＋ Nueva actuación</button>
+    </div>
    </header>
-   <main class="placeholder-screen">
-    <section class="placeholder">
-     <h2>
-      ACTUACIONES
-     </h2>
-     <p>
-      Pantalla preparada para el siguiente desarrollo.
-     </p>
+   <main class="actuaciones-dashboard">
+    <section class="act-card gantt-scroll" id="gantt" aria-label="Cronograma de actuaciones"></section>
+    <section class="act-bottom">
+     <article class="act-card bottom-card legend"><h2>Leyenda de fases</h2><div class="legend-row"><span class="swatch project"></span><span>Inicio Proyecto – Fin Proyecto</span></div><div class="legend-row"><span class="swatch tender"></span><span>Inicio Licitación – Firma Contrato</span></div><div class="legend-row"><span class="swatch work"></span><span>Inicio Obra – Final Obra</span></div></article>
+     <article class="act-card bottom-card finalizadas"><h2>Actuaciones Finalizadas</h2><div id="finalizadas-list"></div><div class="empty-slot"></div></article>
+     <article class="act-card bottom-card proyectos"><h2>Proyectos Finalizados</h2><div id="proyectos-list"></div></article>
     </section>
    </main>
   </div>
+
+  <div class="modal-backdrop" id="act-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+   <section class="act-modal"><header class="modal-head"><h2 id="modal-title">Editar actuación</h2><button class="icon-btn" id="closeModal" type="button">×</button></header>
+    <form class="act-form" id="act-form"><input id="act-id" type="hidden"><div class="form-grid"><label class="field">Actuación<input id="act-name" required></label><label class="field">Responsable<input id="act-owner" required></label><label class="field">Presupuesto con IVA<input id="act-budget" min="0" step="0.01" type="number" required></label></div>
+     <fieldset class="phase-fields phase-project"><legend>Proyecto</legend><label class="field">Inicio<input id="proyecto-start" type="date"></label><label class="field">Fin<input id="proyecto-end" type="date"></label></fieldset>
+     <fieldset class="phase-fields phase-tender"><legend>Licitación</legend><label class="field">Inicio<input id="licitacion-start" type="date"></label><label class="field">Firma contrato<input id="licitacion-end" type="date"></label></fieldset>
+     <fieldset class="phase-fields phase-work"><legend>Obra</legend><label class="field">Inicio<input id="obra-start" type="date"></label><label class="field">Final<input id="obra-end" type="date"></label></fieldset>
+     <div class="modal-actions"><button class="danger-btn" id="deleteBtn" type="button">Eliminar actuación</button><div class="actions-right"><button class="secondary-btn" id="cancelBtn" type="button">Cancelar</button><button class="primary-btn" type="submit">Guardar</button></div></div>
+    </form>
+   </section>
+  </div>
+  <script src="../data/actuaciones-data.js"></script>
+  <script src="../js/actuaciones.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var total = window.ACTUACIONES_DATA && Array.isArray(window.ACTUACIONES_DATA.actuaciones)
+        ? window.ACTUACIONES_DATA.actuaciones.length
+        : 12;
+      document.documentElement.style.setProperty('--act-row-count', Math.max(total, 1));
+    });
+  </script>
+  <script src="../js/impresion.js"></script>
  </body>
 </html>
 

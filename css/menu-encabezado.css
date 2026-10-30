@@ -402,3 +402,19 @@ body {
     -webkit-print-color-adjust: exact !important;
   }
 }
+
+/* Selector único de impresión */
+.global-print-dialog{width:min(620px,calc(100vw - 32px));padding:0;border:0;border-radius:16px;background:#fff;color:#183246;box-shadow:0 24px 70px #06192666}.global-print-dialog::backdrop{background:#0b2233a6;backdrop-filter:blur(3px)}.global-print-box{margin:0}.global-print-box header{display:grid;grid-template-columns:44px 1fr 34px;align-items:center;gap:12px;padding:19px 21px;border-bottom:1px solid #d9e2e8}.global-print-symbol{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:#e9f6fc;color:#087fc8;font-size:25px}.global-print-box h2{margin:0 0 3px;font:800 20px/1.1 Arial,sans-serif}.global-print-box header p{margin:0;color:#687b88;font-size:13px}.global-print-close{align-self:start;width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:#657985;font-size:25px;cursor:pointer}.global-print-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 21px 12px}.global-print-option{min-height:116px;padding:18px;border:2px solid #d5e0e6;border-radius:12px;background:#fff;text-align:left;cursor:pointer}.global-print-option:hover{border-color:#18a9df;background:#f1fbff}.global-print-option b{display:block;margin-bottom:9px;color:#102d40;font-size:17px}.global-print-option span{display:block;color:#687b88;font-size:13px;line-height:1.35}.global-print-status{min-height:19px;margin:0;padding:0 21px;color:#087fc8;font-size:12px;font-weight:700}.global-print-status.busy::before{content:'◌';display:inline-block;margin-right:7px;animation:globalPrintSpin .8s linear infinite}.global-print-box footer{display:flex;justify-content:flex-end;padding:11px 21px 18px}.global-print-box footer button{padding:8px 16px;border:1px solid #bcc9d0;border-radius:8px;background:#fff;color:#314957;font-weight:700;cursor:pointer}.global-print-dialog button:disabled{cursor:wait;opacity:.55}.global-print-frame{position:fixed;left:-20000px;top:0;border:0;opacity:0;pointer-events:none}@keyframes globalPrintSpin{to{transform:rotate(360deg)}}
+@media(max-width:620px){.global-print-options{grid-template-columns:1fr}}
+
+/* Compatibilidad con el logo SVG actual del menú lateral. */
+.brand-logo {
+  display: block;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  object-fit: contain;
+}
+@media screen and (max-width:760px) {
+  .brand-logo { width: 42px; height: 42px; flex-basis: 42px; }
+}

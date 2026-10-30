@@ -1,46 +1,19 @@
-const EXPLOTACION_DATA = {
-  capturePeriod: '01/10/2023 – 01/11/2023',
-  dailyCaptureDate: '07/11/2023',
-  capture: [
-    { name: 'MINILLA', value: 3.0, daily: 69 },
-    { name: 'GERGAL', value: 0.2, daily: 35 },
-    { name: 'BALSA DE MELONARES', value: 5.2, daily: 173 }
-  ],
-  energy: [
-    { name: 'ARACENA', value: 0 },
-    { name: 'ZUFRE', value: 0 },
-    { name: 'MINILLA', value: 3 }
-  ],
-  qualityEntry: [
-    { label: 'Turbidez (NTU)', value: 4.44, ok: 5, warn: 8 },
-    { label: 'Materia orgánica UV254 (m-1)', value: 3.18, ok: 3, warn: 4 },
-    { label: 'Temperatura (°C)', value: 20.9, ok: 18, warn: 22 }
-  ],
-  reactives: [
-    ['Sulfato (ppm)', '83'], ['Cloro (ppm)', '2,6'], ['Carbón activo (ppm)', '0'], ['Polvo (ppm)', 'Parado']
-  ],
-  qualityOutput: [
-    { label: 'Turbidez (NTU)', value: 0.11, ok: 0.5, warn: 1 },
-    { label: 'Materia orgánica UV254 (m-1)', value: 3.38, ok: 3, warn: 4 },
-    { label: 'THM (µg/l)', value: 36, ok: 50, warn: 80 }
-  ],
-  silos: [
-    { name:'SULFATO', kg:30213, max:40000, days:19.8, marker:8074, color:'#becfe0' },
-    { name:'CLORO', kg:6774, max:8000, days:12, marker:2000, color:'#f3e3b6' },
-    { name:'CARBÓN ACTIVO', kg:66131, max:80000, days:'Parado', marker:6131, color:'#cfd1d0' }
-  ],
-  distribution: { municipalities:30, breaches:0, efficiency:52.78, pressure:{min:11.9,max:12.9,value:12.9} },
-  notes: [
-    'Datos de ANR y pérdidas en red correspondientes a los nueve primeros meses del año, donde el volumen facturado alcanza el 90%.',
-    'De los 400 hm³ de capacidad total, 300 hm³ se han repartido. Queda pendiente recibir una segunda distribución.'
-  ]
-};
+let EXPLOTACION_DATA = null;
+
+function selectExplotacionData(fecha) {
+  const dataset = window.EXPLOTACION_DATASET || {};
+  if (dataset[fecha]) return dataset[fecha];
+  const fechas = Object.keys(dataset).sort();
+  if (!fechas.length) throw new Error('No se han cargado datos de Explotación.');
+  const anterior = fechas.filter(item => item <= fecha).at(-1);
+  return dataset[anterior || fechas[0]];
+}
 
 const $ = (selector) => document.querySelector(selector);
 const fmt = (value, digits = 2) => Number(value).toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 function damImage(value) {
-  return value > 0 ? '../PresaON.gif' : '../PresaOFF.gif';
+  return value > 0 ? '../ICONOS/PresaON.gif' : '../ICONOS/PresaOFF.gif';
 }
 
 function ellipsePoint(cx, cy, rx, ry, angle) {
@@ -204,58 +177,301 @@ function renderQuality(target, items) {
 }
 
 function renderTreatment() {
+  $('#treatmentPeriod').textContent = EXPLOTACION_DATA.capturePeriod;
   renderQuality('#entryQuality', EXPLOTACION_DATA.qualityEntry);
   renderQuality('#outputQuality', EXPLOTACION_DATA.qualityOutput);
   $('#reactivesList').innerHTML = EXPLOTACION_DATA.reactives.map(([label,value]) => `<div class="reactive-row"><span>${label}</span><b>${value}</b></div>`).join('');
 }
 
 function siloSvg(index,item,fill) {
-  const fillHeight = 92 * fill;
-  const y = 118 - fillHeight;
   const clipId = `siloClip${index}`;
-  return `<svg class="silo-svg" viewBox="0 0 120 150" aria-label="Silo de ${item.name}">
-    <defs><clipPath id="${clipId}"><path d="M18 18Q60 3 102 18V111L83 139H37L18 111Z"/></clipPath></defs>
-    <path class="silo-shell" d="M18 18Q60 3 102 18V111L83 139H37L18 111Z"/>
-    <rect x="18" y="${y}" width="84" height="${fillHeight + 22}" fill="${item.color}" clip-path="url(#${clipId})"/>
-    <ellipse cx="60" cy="18" rx="42" ry="11" fill="#fff" stroke="#626f75" stroke-width="2.5"/>
-    <path d="M34 139v8M86 139v8M50 139v8M70 139v8" stroke="#626f75" stroke-width="3"/>
+  const fillHeight = 91 * fill;
+  const fillY = 124 - fillHeight;
+  return `<svg class="silo-svg" viewBox="0 0 120 150" role="img" aria-label="Silo de ${item.name}">
+    <defs><clipPath id="${clipId}"><path d="M25 24Q60 9 95 24V105L77 127H43L25 105Z"/></clipPath></defs>
+    <path class="silo-cap" d="M44 8h32v7H44zM48 15h24v5H48z"/>
+    <path class="silo-shell" d="M25 24Q60 9 95 24V105L77 127H43L25 105Z"/>
+    <rect class="silo-fill" x="25" y="${fillY}" width="70" height="${fillHeight + 4}" fill="${item.color}" clip-path="url(#${clipId})"/>
+    <path class="silo-shine" d="M36 35v70"/>
+    <path class="silo-leg" d="M34 125v19m52-19v19M29 144h10m42 0h10"/>
   </svg>`;
 }
 
 function renderSilos() {
+  const stockPeriod = document.querySelector('.stock-heading span');
+  if (stockPeriod) stockPeriod.textContent = EXPLOTACION_DATA.stockPeriod;
   $('#siloGrid').innerHTML = EXPLOTACION_DATA.silos.map((item,index) => {
-    const fill = Math.max(.08, Math.min(1, item.kg / item.max));
-    const labelTop = Math.max(15, 100 - fill * 82);
-    const days = typeof item.days === 'number' ? `${fmt(item.days,1)} días` : item.days;
+    const fill = Math.max(.08, Math.min(1, item.currentKg / item.capacity));
+    const currentDays = typeof item.currentDays === 'number' ? `${fmt(item.currentDays,1)} días` : item.currentDays;
+    const forecastDays = typeof item.forecastDays === 'number' ? `${fmt(item.forecastDays,1)} días` : item.forecastDays;
+    const currentLabel = typeof item.currentDays === 'number' ? 'Autonomía actual:' : 'Estado actual:';
+    const forecastLabel = typeof item.forecastDays === 'number' ? 'Autonomía:' : 'Estado:';
     return `<article class="silo-card">
-      <div class="silo-visual" style="--label-top:${labelTop}%">
+      <div class="silo-visual" style="--fill:${item.color};--forecast-top:${Math.round((1-item.forecastLevel)*82+10)}%">
         ${siloSvg(index,item,fill)}
-        <div class="silo-label"><span>◆ ${fmt(item.kg,0)} kg</span><span>◆ ${days}</span></div>
+        <i class="forecast-marker" aria-hidden="true"></i>
       </div>
-      <div class="silo-info"><strong>${item.name}</strong><small>Indicador: ${fmt(item.marker,0)} kg</small><small>${days} de autonomía</small></div>
+      <div class="silo-info">
+        <strong>${item.name}</strong>
+        <small>Capacidad actual:</small><b>${fmt(item.currentKg,0)} kg</b>
+        <small>${currentLabel}</small><b>${currentDays}</b>
+        <div class="silo-forecast"><b>Previsto: ${fmt(item.forecastKg,0)} kg</b><b>${forecastLabel} ${forecastDays}</b></div>
+      </div>
     </article>`;
   }).join('');
 }
 
+function gaugePoint(cx, cy, r, ratio) {
+  const a = Math.PI * (1 - ratio);
+  return { x: cx + r * Math.cos(a), y: cy - r * Math.sin(a) };
+}
+
+function gaugeArc(cx, cy, r, from, to) {
+  const s = gaugePoint(cx, cy, r, from), e = gaugePoint(cx, cy, r, to);
+  return `M ${s.x.toFixed(1)} ${s.y.toFixed(1)} A ${r} ${r} 0 0 1 ${e.x.toFixed(1)} ${e.y.toFixed(1)}`;
+}
+
+function renderGauge(g) {
+  const cx = 200, cy = 172, r = 126;
+  const limitRatio = Math.min(1, g.limit / g.scaleMax);
+  const separatorRatio = Math.max(0, Math.min(1, limitRatio - 0.035));
+  const markerRatio = Math.max(0, Math.min(1, limitRatio - 0.038));
+  // La aguja avanza por tramos:
+  // - de 0 a 11,9 % recorre la zona roja;
+  // - de 11,9 % a 12,9 % recorre la zona verde;
+  // - cuando PÉRDIDAS RED = ANR, queda horizontal.
+  let valueRatio;
+  if (g.losses <= g.limit) {
+    valueRatio = (g.losses / g.limit) * separatorRatio;
+  } else {
+    const greenRange = g.anr - g.limit;
+    const greenProgress = greenRange > 0
+      ? (g.losses - g.limit) / greenRange
+      : 1;
+    valueRatio = separatorRatio + greenProgress * (1 - separatorRatio);
+  }
+  valueRatio = Math.max(0, Math.min(1, valueRatio));
+  const tip = gaugePoint(cx, cy, 128, valueRatio);
+  const base = gaugePoint(cx, cy, 108, valueRatio);
+  const nx = -(tip.y - cy), ny = tip.x - cx, len = Math.hypot(nx, ny), w = 8;
+  const p1 = `${(base.x + nx / len * w).toFixed(1)},${(base.y + ny / len * w).toFixed(1)}`;
+  const p2 = `${(base.x - nx / len * w).toFixed(1)},${(base.y - ny / len * w).toFixed(1)}`;
+  const ringWidth = 30;
+  const separatorInner = gaugePoint(cx, cy, r - ringWidth / 2 - 2, separatorRatio);
+  const separatorOuter = gaugePoint(cx, cy, r + ringWidth / 2 + 2, separatorRatio);
+  const t0 = gaugePoint(cx, cy, r + 28, markerRatio);
+  const t1 = gaugePoint(cx, cy, r + 48, markerRatio);
+  $('#gaugeSvg').innerHTML = `
+    <path d="${gaugeArc(cx, cy, r, 0, separatorRatio)}" fill="none" stroke="#ff616a" stroke-width="${ringWidth}"/>
+    <path d="${gaugeArc(cx, cy, r, separatorRatio, 1)}" fill="none" stroke="#00a84f" stroke-width="${ringWidth}"/>
+    <line x1="${separatorInner.x.toFixed(1)}" y1="${separatorInner.y.toFixed(1)}" x2="${separatorOuter.x.toFixed(1)}" y2="${separatorOuter.y.toFixed(1)}" stroke="#fff" stroke-width="5"/>
+    <line x1="${cx}" y1="${cy}" x2="${base.x.toFixed(1)}" y2="${base.y.toFixed(1)}" stroke="#000" stroke-width="4"/>
+    <polygon points="${tip.x.toFixed(1)},${tip.y.toFixed(1)} ${p1} ${p2}" fill="#000"/>
+    <line x1="${t0.x.toFixed(1)}" y1="${t0.y.toFixed(1)}" x2="${t1.x.toFixed(1)}" y2="${t1.y.toFixed(1)}" stroke="#000" stroke-width="4"/>
+    <text x="${(t1.x + 6).toFixed(1)}" y="${(t1.y - 8).toFixed(1)}" font-family="Arial,sans-serif" font-size="21.32" font-weight="900" fill="#222">${fmt(g.limit, 1)}%</text>
+    <line x1="352" y1="${cy}" x2="372" y2="${cy}" stroke="#000" stroke-width="4"/>`;
+}
+
+
 function renderDistribution() {
-  const dist = EXPLOTACION_DATA.distribution;
-  $('#municipalities').textContent = dist.municipalities;
-  $('#breaches').textContent = dist.breaches;
-  $('#efficiency').textContent = fmt(dist.efficiency,2);
-  $('#pressureMin').textContent = fmt(dist.pressure.min,1);
-  $('#pressureMax').textContent = fmt(dist.pressure.max,1);
-  $('#pressureValue').textContent = fmt(dist.pressure.value,1);
-  const ratio = Math.max(0, Math.min(1, (dist.pressure.value - dist.pressure.min) / (dist.pressure.max - dist.pressure.min || 1)));
-  $('#pressureNeedle').style.transform = `rotate(${-88 + ratio * 176}deg)`;
+  const d = EXPLOTACION_DATA.distribution;
+  $('#notices').textContent = fmt(d.notices.value, 0);
+  $('#noticesPeriod').textContent = d.notices.period;
+  $('#breaches').textContent = fmt(d.breaches.value, 0);
+  $('#breachesPeriod').textContent = d.breaches.period;
+  $('#purge').textContent = fmt(d.purge.value, 2);
+  $('#purgePeriod').textContent = d.purge.period;
+  $('#gaugePeriod').textContent = d.gauge.period;
+  $('#lossesValue').textContent = `${fmt(d.gauge.losses, 1)}%`;
+  $('#anrValue').textContent = `${fmt(d.gauge.anr, 1)}%`;
+  renderGauge(d.gauge);
 }
 
 function renderNotes() {
-  $('#notesList').innerHTML = EXPLOTACION_DATA.notes.map(note => `<li>${note}</li>`).join('');
+  $('#notesList').innerHTML = EXPLOTACION_DATA.notes.map(note => `<p>${note}</p>`).join('');
 }
 
 function renderAll() {
   renderCapture(); renderEnergy(); renderTreatment(); renderSilos(); renderDistribution(); renderNotes();
 }
 
-$('#printBtn').addEventListener('click', () => window.print());
-renderAll();
+
+
+
+/* ===== Impresión: mismo procedimiento utilizado en Embalses ===== */
+function inlinePrintStyles(source, target) {
+  const computed = getComputedStyle(source);
+  let cssText = '';
+  for (const property of computed) {
+    if (/(^|-)(inline|block)(-|$)/.test(property)) continue;
+    cssText += `${property}:${computed.getPropertyValue(property)};`;
+  }
+  target.setAttribute('style', cssText);
+
+  for (let index = 0; index < source.children.length; index++) {
+    inlinePrintStyles(source.children[index], target.children[index]);
+  }
+
+  /* Los pseudo-elementos se convierten en elementos reales. */
+  for (const pseudo of ['::before', '::after']) {
+    const pseudoStyle = getComputedStyle(source, pseudo);
+    if (!pseudoStyle.content || pseudoStyle.content === 'none' || pseudoStyle.content === 'normal') continue;
+    const span = document.createElement('span');
+    let pseudoCss = '';
+    for (const property of pseudoStyle) {
+      pseudoCss += `${property}:${pseudoStyle.getPropertyValue(property)};`;
+    }
+    span.setAttribute('style', pseudoCss);
+    span.textContent = pseudoStyle.content.replace(/^["']|["']$/g, '');
+    if (pseudo === '::before') target.insertBefore(span, target.firstChild);
+    else target.appendChild(span);
+  }
+}
+
+async function printAssetToDataUrl(source) {
+  if (!source || source.startsWith('data:')) return source;
+  try {
+    const response = await fetch(source);
+    const blob = await response.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.warn('No se pudo incrustar un recurso de Explotación:', source, error);
+    return source;
+  }
+}
+
+async function buildExplotacionPrintImage() {
+  const topbar = document.querySelector('.topbar');
+  const page = document.querySelector('.explotacion-page');
+  if (!topbar || !page) throw new Error('No se encontró la ventana de Explotación');
+
+  /* Se clona la geometría real de la ventana, sin modificar .main y sin
+     activar ninguna regla responsive. */
+  const topRect = topbar.getBoundingClientRect();
+  const pageRect = page.getBoundingClientRect();
+  /* El contenido visible de Explotación está limitado por el ancho de
+     .explotacion-page. La topbar ocupa todo .main y añadía una franja vacía
+     a la derecha del lienzo. La captura debe usar exclusivamente el ancho
+     real del panel, igual que el área útil que ocupa Embalses. */
+  const sourceWidth = Math.ceil(pageRect.width);
+  const sourceHeight = Math.ceil(topRect.height + pageRect.height);
+
+  const topClone = topbar.cloneNode(true);
+  const pageClone = page.cloneNode(true);
+  inlinePrintStyles(topbar, topClone);
+  inlinePrintStyles(page, pageClone);
+  topClone.querySelectorAll('.print-btn, #printBtn').forEach(element => element.remove());
+
+  Object.assign(topClone.style, {
+    boxSizing: 'border-box', width: `${sourceWidth}px`, minWidth: `${sourceWidth}px`,
+    maxWidth: `${sourceWidth}px`, margin: '0', overflow: 'hidden'
+  });
+  Object.assign(pageClone.style, {
+    boxSizing: 'border-box', width: `${sourceWidth}px`, minWidth: `${sourceWidth}px`,
+    maxWidth: `${sourceWidth}px`, height: `${Math.ceil(pageRect.height)}px`,
+    minHeight: `${Math.ceil(pageRect.height)}px`, margin: '0', overflow: 'hidden'
+  });
+
+  /* ETAP.svg se incorpora como imagen real con las medidas exactas del
+     pseudo-elemento de la ventana original. */
+  const originalEtap = page.querySelector('.etap-figure');
+  const clonedEtap = pageClone.querySelector('.etap-figure');
+  if (originalEtap && clonedEtap) {
+    const pseudo = getComputedStyle(originalEtap, '::before');
+    clonedEtap.querySelectorAll('span').forEach(span => {
+      const background = span.style.backgroundImage || span.style.background || '';
+      if (background.includes('ETAP.svg')) span.remove();
+    });
+    const etapImage = document.createElement('img');
+    etapImage.alt = 'ETAP';
+    etapImage.src = await printAssetToDataUrl('../ICONOS/ETAP.svg');
+    etapImage.style.cssText = [
+      'display:block!important','position:absolute',`left:${pseudo.left}`,
+      `top:${pseudo.top}`,`width:${pseudo.width}`,`height:${pseudo.height}`,
+      `transform:${pseudo.transform}`,'object-fit:fill','pointer-events:none',
+      'z-index:2','max-width:none','max-height:none'
+    ].join(';');
+    clonedEtap.appendChild(etapImage);
+  }
+
+  await Promise.all([...pageClone.querySelectorAll('img')].map(async image => {
+    image.src = await printAssetToDataUrl(image.currentSrc || image.src);
+  }));
+
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+  wrapper.style.cssText = `box-sizing:border-box;width:${sourceWidth}px;height:${sourceHeight}px;background:#fff;overflow:hidden;`;
+  wrapper.append(topClone, pageClone);
+
+  const serialized = new XMLSerializer().serializeToString(wrapper);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${sourceWidth}" height="${sourceHeight}" viewBox="0 0 ${sourceWidth} ${sourceHeight}"><foreignObject x="0" y="0" width="${sourceWidth}" height="${sourceHeight}">${serialized}</foreignObject></svg>`;
+  const rendered = new Image();
+  await new Promise((resolve, reject) => {
+    rendered.onload = resolve;
+    rendered.onerror = reject;
+    rendered.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  });
+
+  /* El lienzo final tiene exactamente la relación del área útil A4 usada por
+     Embalses: 287 x 199 mm. Así ambas impresiones ocupan la misma superficie. */
+  const outputWidth = 1722;
+  const outputHeight = 1194;
+  const canvas = document.createElement('canvas');
+  canvas.width = outputWidth;
+  canvas.height = outputHeight;
+  const context = canvas.getContext('2d');
+  context.fillStyle = '#fff';
+  context.fillRect(0, 0, outputWidth, outputHeight);
+  context.drawImage(rendered, 0, 0, sourceWidth, sourceHeight, 0, 0, outputWidth, outputHeight);
+  return canvas.toDataURL('image/png');
+}
+
+async function printExplotacionView() {
+  try {
+    const imageUrl = await buildExplotacionPrintImage();
+    let printImage = document.getElementById('printImg');
+    if (!printImage) {
+      printImage = document.createElement('img');
+      printImage.id = 'printImg';
+      printImage.alt = 'Impresión de Explotación';
+      document.body.appendChild(printImage);
+    }
+    printImage.src = imageUrl;
+    await printImage.decode();
+    document.body.classList.add('print-image');
+  } catch (error) {
+    console.warn('Impresión como imagen no disponible; se usa impresión normal.', error);
+  }
+  window.print();
+}
+
+window.addEventListener('afterprint', () => document.body.classList.remove('print-image'));
+$('#printBtn').addEventListener('click', printExplotacionView);
+
+function loadExplotacionDate(fecha) {
+  EXPLOTACION_DATA = selectExplotacionData(fecha);
+  renderAll();
+}
+
+const fechaConsulta = $('#fecha');
+const fechasExplotacion = window.EXPLOTACION_DATA_DATES || [];
+
+if (fechaConsulta && fechasExplotacion.length) {
+  fechaConsulta.min = fechasExplotacion[0];
+  fechaConsulta.max = fechasExplotacion.at(-1);
+  if (!window.EXPLOTACION_DATASET[fechaConsulta.value]) {
+    fechaConsulta.value = fechasExplotacion.at(-1);
+  }
+  fechaConsulta.addEventListener('change', event => loadExplotacionDate(event.target.value));
+  loadExplotacionDate(fechaConsulta.value);
+} else {
+  loadExplotacionDate(fechasExplotacion.at(-1));
+}
+
+window.__capturePrintPage = buildExplotacionPrintImage;
+window.__nativePrintPage = printExplotacionView;

@@ -1,37 +1,600 @@
-/* Pantalla Actuaciones */
-.placeholder-screen {
-  min-height: calc(100vh - 68px);
-  padding: 28px;
+/* ==========================================================
+   ACTUACIONES.CSS
+   Estilos completos de la ventana Actuaciones.
+   No modifica menu-encabezado.css.
+   ========================================================== */
+
+:root {
+  --act-name: 330px;
+  --act-owner: 115px;
+  --act-budget: 145px;
+  --act-border: #c8cdd0;
+  --act-blue: #087fd1;
+  --act-header: #29445d;
+  --bottom-height: 214px;
 }
 
-.placeholder {
-  margin: 0 auto;
-  max-width: 980px;
-  background: #fff;
-  border: 1px solid #c8cdd0;
-  border-radius: 12px;
-  padding: 45px;
-  box-shadow: 0 2px 8px #0002;
+html,
+body {
+  height: 100%;
+  overflow: hidden;
 }
 
-.placeholder h2 {
-  margin: 0 0 12px;
-  font-size: 26px;
+.main {
+  height: 100vh;
+  overflow: hidden;
 }
 
-.placeholder p {
-  margin: 0;
-  color: #60717c;
-  font-size: 15px;
-}
-
-/* Enlaces del menú lateral: mismo aspecto que los botones */
 a.nav-btn,
 a.nav-btn:link,
 a.nav-btn:visited,
 a.nav-btn:hover,
 a.nav-btn:active {
-  display: block;
   color: inherit;
   text-decoration: none;
+}
+
+/* Encabezado */
+.actuaciones-topbar {
+  box-sizing: border-box;
+  min-height: 58px;
+  height: 58px;
+  gap: 20px;
+}
+
+.actuaciones-topbar .act-toolbar {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.act-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.shift-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 1px solid #ccd6df;
+  border-radius: 10px;
+  background: #e8eef4;
+  font-weight: 700;
+}
+
+.shift-box button,
+.primary-btn {
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.shift-box button {
+  width: 38px;
+  height: 34px;
+  background: #fff;
+  color: #102944;
+  font-size: 20px;
+}
+
+.primary-btn {
+  padding: 10px 18px;
+  background: var(--act-blue);
+  color: #fff;
+  font-size: 15px;
+}
+
+/* Distribución principal */
+.actuaciones-dashboard {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) var(--bottom-height);
+  gap: 8px;
+  width: 100%;
+  max-width: var(--dashboard-max-width, 1500px);
+  height: calc(100vh - 58px);
+  min-height: 0;
+  margin: 0 auto;
+  padding: 8px 12px 10px;
+  overflow: hidden;
+}
+
+.act-card {
+  overflow: hidden;
+  border: 1px solid var(--act-border);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 7px #0002;
+}
+
+/* Cronograma: ocupa todo el alto disponible */
+.gantt-scroll {
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.act-table {
+  width: 100%;
+  height: 100%;
+  min-width: 1280px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+.act-table thead {
+  height: 58px;
+}
+
+.act-table tbody {
+  height: calc(100% - 58px);
+}
+
+.act-table tbody tr {
+  height: calc(100% / var(--act-row-count, 12));
+}
+
+.act-table th {
+  padding: 5px 4px;
+  border-right: 1px solid #718397;
+  background: linear-gradient(90deg, #263e55, #344c62);
+  color: #fff;
+}
+
+.act-table td {
+  padding: 0;
+  border-right: 1px solid #d5dde5;
+  border-bottom: 1px solid #e1e7ec;
+}
+
+.act-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.act-table tbody tr:nth-child(even) td {
+  background-color: #f2f7fb;
+}
+
+.act-name {
+  left: 0;
+  width: var(--act-name);
+  min-width: var(--act-name);
+  text-align: left;
+}
+
+.act-table thead .act-name {
+  text-align: center;
+}
+
+.act-owner {
+  left: var(--act-name);
+  width: var(--act-owner);
+  min-width: var(--act-owner);
+  text-align: center;
+}
+
+.act-budget {
+  left: calc(var(--act-name) + var(--act-owner));
+  width: var(--act-budget);
+  min-width: var(--act-budget);
+  text-align: center;
+}
+
+.sticky {
+  position: sticky;
+  z-index: 5;
+}
+
+.act-table thead .sticky {
+  z-index: 9;
+}
+
+.act-table tbody .sticky {
+  background: #fff;
+}
+
+.act-link {
+  width: 100%;
+  border: 0;
+  padding: 4px 10px;
+  background: none;
+  color: #10233b;
+  text-align: left;
+  font: 700 13.5px/1.18 Arial, sans-serif;
+  cursor: pointer;
+}
+
+.act-link:hover {
+  color: var(--act-blue);
+  text-decoration: underline;
+}
+
+.year-head {
+  font-size: 15px;
+}
+
+.month-head {
+  width: 55px;
+}
+
+.month-cell {
+  position: relative;
+  overflow: hidden;
+}
+
+.year-break {
+  border-left: 2px dashed #111 !important;
+}
+
+.phase-bar {
+  position: absolute;
+  top: 50%;
+  left: var(--left);
+  width: var(--width);
+  height: 18px;
+  border-radius: 4px;
+  background: var(--bar);
+  transform: translateY(-50%);
+  box-shadow: 0 1px 3px #0002;
+}
+
+.today-line {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  border-left: 2px dashed #e02222;
+}
+
+/* Zona inferior, deliberadamente más discreta que el cronograma */
+.act-bottom {
+  display: grid;
+  grid-template-columns: 375px repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 0;
+  height: var(--bottom-height);
+}
+
+.bottom-card {
+  box-sizing: border-box;
+  height: var(--bottom-height);
+  min-height: 0;
+  padding: 8px 12px;
+  overflow: hidden;
+}
+
+.bottom-card h2,
+.finished-title {
+  margin: 0 0 4px;
+  padding: 6px 11px;
+  border-radius: 7px;
+  color: #fff;
+  font: 800 18px/1 Arial, sans-serif;
+}
+
+.legend h2 {
+  padding-left: 2px;
+  background: none;
+  color: #102944;
+}
+
+.finalizadas h2,
+.finalizadas .finished-title {
+  background: linear-gradient(90deg, #f07643, #ff855b);
+}
+
+.proyectos h2,
+.proyectos .finished-title {
+  background: linear-gradient(90deg, #627087, #7e899d);
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 4px;
+  font-size: 13px;
+}
+
+.swatch {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 25px;
+  border-radius: 5px;
+}
+
+.swatch.project {
+  background: #61c548;
+}
+
+.swatch.tender {
+  background: #ffc107;
+}
+
+.swatch.work {
+  background: #2494ee;
+}
+
+/* Registros finalizados: edición integrada y alineación vertical */
+.finished-title {
+  box-sizing: border-box;
+  width: 100%;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.finished-title:hover { filter: brightness(.97); }
+.finished-row {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 42px;
+  padding: 4px 2px;
+  border: 0;
+  border-bottom: 1px solid #ccd4dc;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+.finished-row:last-child { border-bottom: 0; }
+.finished-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 82px 64px;
+  align-items: center;
+  column-gap: 8px;
+  min-width: 0;
+}
+.finished-main {
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  min-width: 0;
+}
+.finished-date {
+  font-size: 10.5px;
+  line-height: 1;
+}
+.finished-main strong {
+  overflow: hidden;
+  color: #0c1730;
+  font-size: 10.5px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.finished-person,
+.finished-money {
+  display: grid;
+  align-items: center;
+  align-self: center;
+  gap: 4px;
+  min-height: 24px;
+  font-size: 10.5px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.finished-person { grid-template-columns: 15px minmax(0, 1fr); }
+.finished-money { grid-template-columns: 24px minmax(0, 1fr); }
+.finished-icon { display: block; object-fit: contain; }
+.icon-calendar { width: 20px; height: 20px; align-self: center; }
+.icon-person { justify-self: center; width: 12px; height: 17px; }
+.icon-money { width: 24px; height: 14px; }
+.empty-slot { display: none; }
+.finished-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.finished-name-field { grid-column: 1 / -1; }
+.finished-modal-box { width: min(650px, 96vw); }
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: none;
+  place-items: center;
+  padding: 20px;
+  background: #10203099;
+}
+
+.modal-backdrop.open {
+  display: grid;
+}
+
+.act-modal {
+  width: min(730px, 96vw);
+  max-height: 92vh;
+  overflow: auto;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 60px #0005;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #dce3e8;
+}
+
+.modal-head h2 {
+  margin: 0;
+}
+
+.icon-btn {
+  border: 0;
+  background: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.act-form {
+  padding: 18px 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.field input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 9px;
+  border: 1px solid #bdc8d0;
+  border-radius: 7px;
+}
+
+.phase-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 9px;
+}
+
+.phase-project {
+  background: #f3faec;
+}
+
+.phase-tender {
+  background: #fff9e6;
+}
+
+.phase-work {
+  background: #edf7ff;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.actions-right {
+  display: flex;
+  gap: 10px;
+}
+
+.secondary-btn,
+.danger-btn {
+  padding: 9px 14px;
+  border: 1px solid #c6cfd6;
+  border-radius: 8px;
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.danger-btn {
+  border-color: #e9a4a4;
+  background: #fff4f4;
+  color: #b31313;
+}
+
+@media (max-width: 1100px) {
+  html,
+  body,
+  .main {
+    overflow: auto;
+  }
+
+  .actuaciones-dashboard {
+    height: auto;
+    overflow: visible;
+  }
+
+  .act-bottom {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .bottom-card {
+    height: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .actuaciones-topbar {
+    height: auto;
+    min-height: 58px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .actuaciones-topbar .act-toolbar {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* ==========================================================
+   IMPRESIÓN DE ACTUACIONES · misma superficie que Embalses
+   ========================================================== */
+@page {
+  size: A4 landscape;
+  margin: 5mm;
+}
+
+#printActuacionesImg {
+  display: none;
+}
+
+@media print {
+  body.print-actuaciones-image .sidebar,
+  body.print-actuaciones-image .main,
+  body.print-actuaciones-image .modal-backdrop {
+    display: none !important;
+  }
+
+  html:has(body.print-actuaciones-image),
+  body.print-actuaciones-image {
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  body.print-actuaciones-image #printActuacionesImg {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: 199mm !important;
+    max-width: none !important;
+    max-height: 199mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    object-fit: contain !important;
+    object-position: center top !important;
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
+  }
 }

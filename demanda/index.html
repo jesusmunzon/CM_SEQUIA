@@ -11,19 +11,10 @@
  </head>
  <body>
   <aside class="sidebar">
-   <div class="brand">
-    <div class="brand-mark">
-     💧
+    <div class="brand">
+      <img class="brand-logo" src="../ICONOS/logo.svg" alt="EMASESA">
+      <div><b>CONTROL HÍDRICO</b><small>Panel de explotación</small></div>
     </div>
-    <div>
-     <b>
-      CONTROL HÍDRICO
-     </b>
-     <small>
-      Panel de explotación
-     </small>
-    </div>
-   </div>
    <nav class="menu">
     <a class="nav-btn" href="../">
      <span class="menu-icon">
@@ -86,25 +77,106 @@
   </aside>
   <div class="main">
    <header class="topbar">
-    <h1 id="pageTitle">
-     DEMANDA
-    </h1>
-    <label id="dateFilter">
-     Fecha de consulta
-     <input id="fecha" max="2024-09-30" min="2023-10-01" type="date" value="2024-02-29"/>
+    <h1 id="pageTitle">DEMANDA</h1>
+    <label id="dateFilter">Fecha de consulta
+     <input id="fecha" type="date" min="2023-10-01" max="2023-11-30" value="2023-11-07">
     </label>
    </header>
-   <main class="placeholder-screen">
-    <section class="placeholder">
-     <h2>
-      DEMANDA
-     </h2>
-     <p>
-      Pantalla preparada para el siguiente desarrollo.
-     </p>
-    </section>
+   <main class="demanda-page">
+    <div class="demanda-grid">
+
+     <!-- DEMANDA AGUA POTABLE -->
+     <section aria-labelledby="demandaTitle" class="dm-card dm-demanda">
+      <header class="dm-heading dm-heading-grey">
+       <h2 id="demandaTitle">DEMANDA AGUA POTABLE</h2>
+      </header>
+      <div class="dm-stage-wrap" id="dmStageWrap">
+       <div class="dm-stage" id="dmStage"></div>
+      </div>
+     </section>
+
+     <!-- COSTES SEQUÍA -->
+     <section aria-labelledby="costesTitle" class="dm-card dm-costes">
+      <header class="dm-heading dm-heading-yellow">
+       <h2 id="costesTitle">COSTES SEQUÍA</h2>
+      </header>
+      <div class="dm-costes-body">
+       <div class="dm-costes-table" id="dmCostes"></div>
+       <p class="dm-costes-note" id="dmCostesNota"></p>
+      </div>
+     </section>
+
+     <!-- ACCIONES -->
+     <section aria-labelledby="accionesTitle" class="dm-card dm-acciones">
+      <header class="dm-heading dm-heading-purple">
+       <h2 id="accionesTitle">ACCIONES</h2>
+       <button class="dm-add" id="dmAdd" type="button">＋ Añadir acción</button>
+      </header>
+      <div class="dm-acciones-body">
+       <div class="dm-weeks-panel">
+        <div class="dm-weeks-tools">
+         <label>Año <select id="dmAnio"></select></label>
+         <label>Desde <select id="dmMes"></select></label>
+         <span class="dm-legend"><i class="l1"></i>Normal <i class="l2"></i>Alta <i class="l3"></i>Crítica</span>
+        </div>
+        <div class="dm-months" id="dmMonths"></div>
+       </div>
+       <div class="dm-agenda-wrap">
+        <div class="dm-notebook" id="dmNotebook">
+         <img alt="" class="dm-nb-bg" src="../ICONOS/Agenda_Demanda.svg"/>
+         <div class="dm-page dm-page-left">
+          <div class="dm-cols"><span>INICIO</span><span>FIN</span><span>ACCIÓN</span><span>IMPACTO</span></div>
+          <div class="dm-rows" id="dmRowsL"></div>
+         </div>
+         <div class="dm-page dm-page-right">
+          <div class="dm-notes">
+           <span class="dm-note n22"><img alt="" src="../ICONOS/Nota_Demanda.svg"/><b>2022</b></span>
+           <span class="dm-note n23"><img alt="" src="../ICONOS/Nota_Demanda.svg"/><b>2023</b></span>
+           <img alt="Objetivo 90" class="dm-obj90" src="../ICONOS/Objetivo90_Demanda.svg"/>
+          </div>
+          <div class="dm-rows" id="dmRowsR"></div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </section>
+
+    </div>
    </main>
   </div>
+
+  <dialog id="dmDialog">
+   <form id="dmForm" method="dialog">
+    <h3 id="dmDialogTitle">Acción formativa</h3>
+    <label>Acción <input id="fAccion" required type="text"/></label>
+    <div class="dm-form-row">
+     <label>Inicio <input id="fInicio" type="date"/></label>
+     <label>Fin <input id="fFin" type="date"/></label>
+    </div>
+    <div class="dm-form-row">
+     <label>Importe <input id="fImporte" step="any" type="number"/></label>
+     <label>Unidad
+      <select id="fUnidad">
+       <option value="millones">millones</option>
+       <option value="miles">miles</option>
+       <option value="personas">personas</option>
+       <option value="€">€</option>
+       <option value="">(sin unidad)</option>
+      </select>
+     </label>
+    </div>
+    <div class="dm-form-actions">
+     <button class="del" id="fEliminar" type="button">Eliminar</button>
+     <span></span>
+     <button id="fCancelar" type="button">Cancelar</button>
+     <button class="ok" type="submit">Guardar</button>
+    </div>
+   </form>
+  </dialog>
+
+  <script src="../data/demanda-data.js"></script>
+  <script src="../data/iconos-inline.js"></script>
+  <script src="../js/demanda.js"></script>
+  <script src="../js/impresion.js"></script>
  </body>
 </html>
-

@@ -10,7 +10,7 @@
 <body>
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-mark">💧</div>
+      <img class="brand-logo" src="../ICONOS/logo.svg" alt="EMASESA">
       <div><b>CONTROL HÍDRICO</b><small>Panel de explotación</small></div>
     </div>
     <nav class="menu">
@@ -106,42 +106,39 @@
           </div>
 
           <section class="stock-section" aria-labelledby="stockTitle">
-            <div class="stock-heading"><h3 id="stockTitle">STOCK REACTIVOS</h3><span>Estado a fecha de consulta</span></div>
+            <div class="stock-heading"><h3 id="stockTitle">STOCK REACTIVOS</h3><span>06/11/2023 – 10/11/2023</span></div>
             <div class="silo-grid" id="siloGrid"></div>
           </section>
         </section>
 
         <section class="op-card distribution-card" aria-labelledby="distributionTitle">
-          <header class="card-heading"><div><h2 id="distributionTitle">DISTRIBUCIÓN</h2></div><span class="unit">Valores operativos</span></header>
-          <div class="distribution-top">
-            <div class="dist-kpi municipal"><span class="dist-icon"><svg viewBox="0 0 24 24"><path d="M4 21V9l8-6 8 6v12M8 21v-7h8v7"/><path d="M3 21h18"/></svg></span><small>MUNICIPIOS</small><strong id="municipalities">30</strong></div>
-            <div class="dist-kpi alerts"><span class="dist-icon"><svg viewBox="0 0 24 24"><path d="M12 3 2 21h20L12 3Z"/><path d="M12 9v5M12 18h.01"/></svg></span><small>INCUMPLIMIENTOS</small><strong id="breaches">0</strong></div>
-            <div class="dist-kpi efficiency"><span class="dist-icon"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 17l3-4 3 2 4-7"/><path d="m15 8 2 0 0 2"/></svg></span><small>EFICIENCIA HIDRÁULICA</small><strong id="efficiency">52,78</strong><em>%</em></div>
-          </div>
-          <div class="distribution-divider"></div>
-          <div class="gauge-section">
-            <h3>PRESIÓN MEDIA DE RED</h3>
-            <div class="gauge" id="pressureGauge">
-              <svg viewBox="0 0 260 150" aria-label="Velocímetro de presión media">
-                <path class="gauge-red" d="M35 125A95 95 0 0 1 130 30"/>
-                <path class="gauge-green" d="M130 30A95 95 0 0 1 225 125"/>
-                <line class="gauge-needle" id="pressureNeedle" x1="130" y1="125" x2="130" y2="48"/>
-                <circle cx="130" cy="125" r="8" fill="#202b31"/>
-              </svg>
-              <span class="limit min" id="pressureMin">11,9</span>
-              <span class="limit max" id="pressureMax">12,9</span>
-              <div class="gauge-value"><strong id="pressureValue">12,9</strong><small>bar</small></div>
+          <header class="card-heading"><div><h2 id="distributionTitle">DISTRIBUCIÓN</h2></div></header>
+          <div class="dist-body">
+            <div class="dist-kpis">
+              <article class="dist-kpi notice"><div class="dist-kpi-icon"><img src="../ICONOS/Aviso.svg" alt=""></div><div class="dist-kpi-text"><small>AVISOS CLIENTES POR<br>CALIDAD DE AGUA</small><span id="noticesPeriod"></span><strong id="notices">0</strong></div></article>
+              <article class="dist-kpi breach"><div class="dist-kpi-icon"><img src="../ICONOS/Incumplimiento.svg" alt=""></div><div class="dist-kpi-text"><small>INCUMPLIMIENTOS</small><span id="breachesPeriod"></span><strong id="breaches">0</strong></div></article>
+              <article class="dist-kpi purge"><div class="dist-kpi-icon"><img src="../ICONOS/Purgado.svg" alt=""></div><div class="dist-kpi-text"><small>PURGADO (dam³)</small><span id="purgePeriod"></span><strong id="purge">0</strong></div></article>
+            </div>
+            <div class="dist-gauge-section">
+              <span class="dist-gauge-period" id="gaugePeriod"></span>
+              <div class="dist-gauge">
+                <svg id="gaugeSvg" viewBox="0 0 520 200" aria-label="Pérdidas de red"></svg>
+                <div class="gauge-card losses"><b>PÉRDIDAS RED</b><strong id="lossesValue">0%</strong><img src="../ICONOS/Perdida.svg" alt=""></div>
+                <div class="gauge-card anr"><b>Agua No Registrada</b><strong id="anrValue">0%</strong><img src="../ICONOS/ANR.svg" alt=""></div>
+              </div>
             </div>
           </div>
         </section>
 
         <section class="op-card notes-card" aria-labelledby="notesTitle">
           <header class="card-heading"><h2 id="notesTitle">NOTAS</h2></header>
-          <ul id="notesList"></ul>
+          <div class="notes-text" id="notesList"></div>
         </section>
       </div>
     </main>
   </div>
+  <script src="../data/explotacion-data.js"></script>
   <script src="../js/explotacion.js"></script>
+  <script src="../js/impresion.js"></script>
 </body>
 </html>
