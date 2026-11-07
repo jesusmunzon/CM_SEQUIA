@@ -10,7 +10,16 @@
   const ICON = '../ICONOS/';
   const GREEN = '#00a651', RED = '#ff7b80';
   const MESES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
-  const nf = (v, d = 0) => v.toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const numberFormatters = new Map();
+  const nf = (v, d = 0) => {
+    if (!numberFormatters.has(d)) {
+      numberFormatters.set(d, new Intl.NumberFormat('de-DE', {
+        minimumFractionDigits: d,
+        maximumFractionDigits: d
+      }));
+    }
+    return numberFormatters.get(d).format(v);
+  };
   const pc = (v, d = 2) => nf(v, d) + '%';
   const variacion = (base, actual) => base === 0 ? 0 : ((actual - base) / base) * 100;
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -144,7 +153,11 @@
     return { week: Math.ceil(((t - y0) / 86400000 + 1) / 7), year: t.getUTCFullYear() };
   }
   // Semanas ISO cuyo jueves cae en el mes indicado (criterio habitual de reparto de semanas)
+  const weeksByMonth = new Map();
   function semanasDelMes(anio, mes) {
+    const key = `${anio}-${mes}`;
+    if (weeksByMonth.has(key)) return weeksByMonth.get(key);
+
     const out = new Set();
     for (let d = new Date(Date.UTC(anio, mes, 1)); d.getUTCMonth() === mes; d.setUTCDate(d.getUTCDate() + 1)) {
       if ((d.getUTCDay() || 7) === 4) {
@@ -152,19 +165,28 @@
         out.add(w.week);
       }
     }
-    return [...out].sort((a, b) => a - b);
+    const weeks = [...out].sort((a, b) => a - b);
+    weeksByMonth.set(key, weeks);
+    return weeks;
   }
 
   function renderSemanas() {
-    const meses = [];
-    for (let m = st.mes - 1; m < 12; m++) meses.push(m);
-    $('#dmMonths').classList.toggle('many', meses.length > 9);
-    $('#dmMonths').innerHTML = meses.map(m => `
-      <div class="dm-month"><div class="dm-mh">${MESES[m]} ${st.anio}</div>
-      <div class="dm-wk${semanasDelMes(st.anio, m).length === 4 ? ' w4' : ''}">${semanasDelMes(st.anio, m).map(w => {
-        const v = st.semanas[`${st.anio}-${w}`] || 0;
-        return `<button type="button" class="dm-w ${v ? 's' + v : ''}" data-k="${st.anio}-${w}" title="Clic: cambia la importancia">Semana<b>${w}</b></button>`;
-      }).join('')}</div></div>`).join('');
+    const meses = Array.from({ length: 9 }, (_, offset) => {
+      const date = new Date(st.anio, st.mes - 1 + offset, 1);
+      return { anio: date.getFullYear(), mes: date.getMonth() };
+    });
+
+    $('#dmMonths').classList.remove('many');
+    $('#dmMonths').innerHTML = meses.map(({ anio, mes }) => {
+      const weeks = semanasDelMes(anio, mes);
+      return `
+      <div class="dm-month"><div class="dm-mh">${MESES[mes]} ${anio}</div>
+      <div class="dm-wk${weeks.length === 4 ? ' w4' : ''}">${weeks.map(w => {
+        const key = `${anio}-${w}`;
+        const v = st.semanas[key] || 0;
+        return `<button type="button" class="dm-w ${v ? 's' + v : ''}" data-k="${key}" title="Clic: cambia la importancia">Semana<b>${w}</b></button>`;
+      }).join('')}</div></div>`;
+    }).join('');
   }
 
   const fSem = f => { const w = isoWeek(f); return w ? `S${w.week} (${w.year})` : '∅'; };
@@ -214,7 +236,7 @@
       dlg.showModal();
     };
     $('#dmAdd').addEventListener('click', () => open(null));
-    document.addEventListener('click', e => {
+    $('#dmNotebook').addEventListener('click', e => {
       const r = e.target.closest('.dm-row'); if (!r) return;
       const a = st.listado.find(x => x.id == r.dataset.id); if (a) open(a);
     });
@@ -257,7 +279,6 @@
   dateInput.addEventListener('change', event => {
     D.demanda = demandForDate(event.target.value);
     renderDemanda();
-    fitStage();
     window.dispatchEvent(new Event('demanda:rendered'));
   });
 
@@ -418,7 +439,6 @@
 
   const bind = () => { const b = document.getElementById('printBtn') || $('.print-btn'); if (b) b.onclick = printView; };
   bind();
-  document.addEventListener('DOMContentLoaded', bind);
   window.__capturePrintPage = buildPrintImage;
   window.__nativePrintPage = printView;
 })();

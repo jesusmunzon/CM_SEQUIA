@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+
   const DATA = window.ACTUACIONES_DATA;
   const monthNames = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
   const phases = [
@@ -7,136 +8,215 @@
     { key: 'licitacion', color: '#ffc107' },
     { key: 'obra', color: '#2494ee' }
   ];
-  let monthShift = 0;
+  const euroFormatter = new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0
+  });
 
-  const $ = (s) => document.querySelector(s);
-  const esc = (v='') => String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const parseDate = (s) => s ? new Date(`${s}T00:00:00`) : null;
-  const iso = (d) => d.toISOString().slice(0,10);
-  const money = (n) => new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(n)||0);
+  let monthShift = 0;
+  let ui;
+
+  const esc = (value = '') => String(value).replace(/[&<>'"]/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  })[character]);
+  const parseDate = value => value ? new Date(`${value}T00:00:00`) : null;
+  const money = value => euroFormatter.format(Number(value) || 0);
 
   function months() {
     const base = parseDate(DATA.inicioCronograma);
-    return Array.from({length: DATA.mesesVisibles}, (_,i) => {
-      const d = new Date(base.getFullYear(), base.getMonth()+i+monthShift, 1);
-      return { year:d.getFullYear(), month:d.getMonth(), label:monthNames[d.getMonth()] };
+    return Array.from({ length: DATA.mesesVisibles }, (_, index) => {
+      const date = new Date(base.getFullYear(), base.getMonth() + index + monthShift, 1);
+      return {
+        year: date.getFullYear(),
+        month: date.getMonth(),
+        label: monthNames[date.getMonth()]
+      };
     });
   }
 
-  function fill(m, range) {
-    const start=parseDate(range?.[0]), end=parseDate(range?.[1]);
-    if(!start || !end) return null;
-    const ms=new Date(m.year,m.month,1), me=new Date(m.year,m.month+1,0);
-    if(end<ms || start>me) return null;
-    const a=start>ms?start:ms, b=end<me?end:me, days=me.getDate();
-    return { left:((a.getDate()-1)/days)*100, width:((b.getDate()-a.getDate()+1)/days)*100 };
+  function fill(month, range) {
+    const start = parseDate(range?.[0]);
+    const end = parseDate(range?.[1]);
+    if (!start || !end) return null;
+
+    const monthStart = new Date(month.year, month.month, 1);
+    const monthEnd = new Date(month.year, month.month + 1, 0);
+    if (end < monthStart || start > monthEnd) return null;
+
+    const visibleStart = start > monthStart ? start : monthStart;
+    const visibleEnd = end < monthEnd ? end : monthEnd;
+    const days = monthEnd.getDate();
+
+    return {
+      left: ((visibleStart.getDate() - 1) / days) * 100,
+      width: ((visibleEnd.getDate() - visibleStart.getDate() + 1) / days) * 100
+    };
   }
 
   function renderGantt() {
-    const list=months();
-    const groups=[];
-    list.forEach(m => groups.at(-1)?.year===m.year ? groups.at(-1).count++ : groups.push({year:m.year,count:1}));
-    const today=new Date();
-    let html='<table class="act-table"><thead><tr><th class="sticky act-name" rowspan="2">Actuación</th><th class="sticky act-owner" rowspan="2">Responsable</th><th class="sticky act-budget" rowspan="2">Presupuesto<br>con IVA</th>';
-    groups.forEach(g => html+=`<th colspan="${g.count}" class="year-head">${g.year}</th>`);
-    html+='</tr><tr>';
-    list.forEach(m => html+=`<th class="month-head">${m.label}</th>`);
-    html+='</tr></thead><tbody>';
+    const visibleMonths = months();
+    const groups = [];
+    const today = new Date();
+    const html = [];
 
-    DATA.actuaciones.forEach((a,row) => {
-      html+=`<tr><td class="sticky act-name"><button class="act-link" data-id="${a.id}">${esc(a.nombre)}</button></td><td class="sticky act-owner">${esc(a.responsable)}</td><td class="sticky act-budget">${money(a.presupuesto)}</td>`;
-      list.forEach((m,idx) => {
-        const yearBreak=idx>0 && list[idx-1].year!==m.year;
-        let bars='';
-        phases.forEach(p => { const f=fill(m,a[p.key]); if(f) bars+=`<span class="phase-bar" style="--left:${f.left}%;--width:${f.width}%;--bar:${p.color}"></span>`; });
-        let todayLine='';
-        if(m.year===today.getFullYear() && m.month===today.getMonth()) todayLine=`<i class="today-line" style="left:${((today.getDate()-.5)/new Date(m.year,m.month+1,0).getDate())*100}%"></i>`;
-        html+=`<td class="month-cell ${yearBreak?'year-break':''}">${bars}${todayLine}</td>`;
-      });
-      html+='</tr>';
+    visibleMonths.forEach(month => {
+      const previous = groups.at(-1);
+      if (previous?.year === month.year) previous.count++;
+      else groups.push({ year: month.year, count: 1 });
     });
-    html+='</tbody></table>';
-    $('#gantt').innerHTML=html;
-    document.querySelectorAll('.act-link').forEach(b=>b.addEventListener('click',()=>openModal(Number(b.dataset.id))));
+
+    html.push('<table class="act-table"><thead><tr><th class="sticky act-name" rowspan="2">Actuación</th><th class="sticky act-owner" rowspan="2">Responsable</th><th class="sticky act-budget" rowspan="2">Presupuesto<br>con IVA</th>');
+    groups.forEach(group => html.push(`<th colspan="${group.count}" class="year-head">${group.year}</th>`));
+    html.push('</tr><tr>');
+    visibleMonths.forEach(month => html.push(`<th class="month-head">${month.label}</th>`));
+    html.push('</tr></thead><tbody>');
+
+    DATA.actuaciones.forEach(action => {
+      html.push(`<tr><td class="sticky act-name"><button class="act-link" data-id="${action.id}">${esc(action.nombre)}</button></td><td class="sticky act-owner">${esc(action.responsable)}</td><td class="sticky act-budget">${money(action.presupuesto)}</td>`);
+
+      visibleMonths.forEach((month, index) => {
+        const yearBreak = index > 0 && visibleMonths[index - 1].year !== month.year;
+        const bars = [];
+
+        phases.forEach(phase => {
+          const position = fill(month, action[phase.key]);
+          if (position) {
+            bars.push(`<span class="phase-bar" style="--left:${position.left}%;--width:${position.width}%;--bar:${phase.color}"></span>`);
+          }
+        });
+
+        let todayLine = '';
+        if (month.year === today.getFullYear() && month.month === today.getMonth()) {
+          const days = new Date(month.year, month.month + 1, 0).getDate();
+          todayLine = `<i class="today-line" style="left:${((today.getDate() - .5) / days) * 100}%"></i>`;
+        }
+
+        html.push(`<td class="month-cell ${yearBreak ? 'year-break' : ''}">${bars.join('')}${todayLine}</td>`);
+      });
+
+      html.push('</tr>');
+    });
+
+    html.push('</tbody></table>');
+    ui.gantt.innerHTML = html.join('');
   }
 
-  function renderCards() {
-    const render=(id,items) => {
-      $(id).innerHTML=items.slice(0,4).map(x=>`
-        <article class="finished-row">
-          <img class="finished-icon finished-icon-calendar" src="../ICONOS/Calendario_Actuaciones.svg" alt="" aria-hidden="true">
-          <div class="finished-content">
-            <div class="finished-meta">
-              <span class="finished-date">${esc(x.fecha)}</span>
-              <span class="finished-person">
-                <img class="finished-icon finished-icon-person" src="../ICONOS/Responsable_Actuaciones.svg" alt="" aria-hidden="true">
-                <span>${esc(x.responsable)}</span>
-              </span>
-              <span class="finished-money">
-                <img class="finished-icon finished-icon-money" src="../ICONOS/Dinero_Actuaciones.svg" alt="" aria-hidden="true">
-                <span>${esc(x.presupuesto)}</span>
-              </span>
-            </div>
-            <strong>${esc(x.nombre)}</strong>
-          </div>
-        </article>`).join('');
+  function openModal(id = null) {
+    const action = DATA.actuaciones.find(item => item.id === id);
+    ui.modalTitle.textContent = action ? 'Editar actuación' : 'Nueva actuación';
+    ui.id.value = action?.id || '';
+    ui.name.value = action?.nombre || '';
+    ui.owner.value = action?.responsable || '';
+    ui.budget.value = action?.presupuesto || '';
+
+    ['proyecto', 'licitacion', 'obra'].forEach(key => {
+      ui[`${key}Start`].value = action?.[key]?.[0] || '';
+      ui[`${key}End`].value = action?.[key]?.[1] || '';
+    });
+
+    ui.deleteButton.hidden = !action;
+    ui.modal.classList.add('open');
+    ui.name.focus();
+  }
+
+  function closeModal() {
+    ui.modal.classList.remove('open');
+  }
+
+  function save(event) {
+    event.preventDefault();
+    const id = Number(ui.id.value) || Date.now();
+    const action = {
+      id,
+      nombre: ui.name.value.trim(),
+      responsable: ui.owner.value.trim(),
+      presupuesto: Number(ui.budget.value) || 0
     };
-    render('#finalizadas-list',DATA.finalizadas);
-    render('#proyectos-list',DATA.proyectosFinalizados);
+
+    ['proyecto', 'licitacion', 'obra'].forEach(key => {
+      action[key] = [ui[`${key}Start`].value, ui[`${key}End`].value];
+    });
+
+    const index = DATA.actuaciones.findIndex(item => item.id === id);
+    if (index >= 0) DATA.actuaciones.splice(index, 1, action);
+    else DATA.actuaciones.push(action);
+
+    closeModal();
+    renderGantt();
   }
 
-  function openModal(id=null) {
-    const a=DATA.actuaciones.find(x=>x.id===id);
-    $('#modal-title').textContent=a?'Editar actuación':'Nueva actuación';
-    $('#act-id').value=a?.id||'';
-    $('#act-name').value=a?.nombre||'';
-    $('#act-owner').value=a?.responsable||'';
-    $('#act-budget').value=a?.presupuesto||'';
-    ['proyecto','licitacion','obra'].forEach(k=>{ $(`#${k}-start`).value=a?.[k]?.[0]||''; $(`#${k}-end`).value=a?.[k]?.[1]||''; });
-    $('#deleteBtn').hidden=!a;
-    $('#act-modal').classList.add('open');
-    $('#act-name').focus();
+  function remove() {
+    const id = Number(ui.id.value);
+    if (!id || !confirm('¿Eliminar esta actuación?')) return;
+    DATA.actuaciones = DATA.actuaciones.filter(item => item.id !== id);
+    closeModal();
+    renderGantt();
   }
-  function closeModal(){ $('#act-modal').classList.remove('open'); }
-  function save(e){
-    e.preventDefault();
-    const id=Number($('#act-id').value)||Date.now();
-    const obj={ id, nombre:$('#act-name').value.trim(), responsable:$('#act-owner').value.trim(), presupuesto:Number($('#act-budget').value)||0 };
-    ['proyecto','licitacion','obra'].forEach(k=>obj[k]=[$(`#${k}-start`).value,$(`#${k}-end`).value]);
-    const i=DATA.actuaciones.findIndex(x=>x.id===id); i>=0?DATA.actuaciones.splice(i,1,obj):DATA.actuaciones.push(obj);
-    closeModal(); renderGantt();
-  }
-  function remove(){
-    const id=Number($('#act-id').value); if(!id) return;
-    if(!confirm('¿Eliminar esta actuación?')) return;
-    DATA.actuaciones=DATA.actuaciones.filter(x=>x.id!==id); closeModal(); renderGantt();
-  }
-  function shift(n){ monthShift+=n; $('#shiftValue').textContent=`${monthShift>0?'+':''}${monthShift} meses`; renderGantt(); }
 
-  document.addEventListener('DOMContentLoaded',()=>{
-    renderGantt(); renderCards();
-    $('#newActBtn').addEventListener('click',()=>openModal());
-    $('#prevMonth').addEventListener('click',()=>shift(-1));
-    $('#nextMonth').addEventListener('click',()=>shift(1));
-    $('#closeModal').addEventListener('click',closeModal);
-    $('#cancelBtn').addEventListener('click',closeModal);
-    $('#deleteBtn').addEventListener('click',remove);
-    $('#act-form').addEventListener('submit',save);
-    $('#act-modal').addEventListener('click',e=>{if(e.target.id==='act-modal')closeModal();});
+  function shift(amount) {
+    monthShift += amount;
+    ui.shiftValue.textContent = `${monthShift > 0 ? '+' : ''}${monthShift} meses`;
+    renderGantt();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    ui = {
+      gantt: document.getElementById('gantt'),
+      modal: document.getElementById('act-modal'),
+      modalTitle: document.getElementById('modal-title'),
+      id: document.getElementById('act-id'),
+      name: document.getElementById('act-name'),
+      owner: document.getElementById('act-owner'),
+      budget: document.getElementById('act-budget'),
+      proyectoStart: document.getElementById('proyecto-start'),
+      proyectoEnd: document.getElementById('proyecto-end'),
+      licitacionStart: document.getElementById('licitacion-start'),
+      licitacionEnd: document.getElementById('licitacion-end'),
+      obraStart: document.getElementById('obra-start'),
+      obraEnd: document.getElementById('obra-end'),
+      deleteButton: document.getElementById('deleteBtn'),
+      shiftValue: document.getElementById('shiftValue')
+    };
+
+    document.documentElement.style.setProperty('--act-row-count', Math.max(DATA.actuaciones.length, 1));
+    renderGantt();
+
+    ui.gantt.addEventListener('click', event => {
+      const button = event.target.closest('.act-link');
+      if (button) openModal(Number(button.dataset.id));
+    });
+    document.getElementById('newActBtn').addEventListener('click', () => openModal());
+    document.getElementById('prevMonth').addEventListener('click', () => shift(-1));
+    document.getElementById('nextMonth').addEventListener('click', () => shift(1));
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    ui.deleteButton.addEventListener('click', remove);
+    document.getElementById('act-form').addEventListener('submit', save);
+    ui.modal.addEventListener('click', event => {
+      if (event.target === ui.modal) closeModal();
+    });
   });
 })();
+
 (() => {
   'use strict';
+
   const DATA = window.ACTUACIONES_DATA;
   const MAX = 4;
-  const $ = s => document.querySelector(s);
-  const esc = (v='') => String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const $ = selector => document.querySelector(selector);
+  const esc = (value = '') => String(value).replace(/[&<>'"]/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  })[character]);
   const list = type => type === 'finalizadas' ? DATA.finalizadas : DATA.proyectosFinalizados;
   const label = type => type === 'finalizadas' ? 'actuación finalizada' : 'proyecto finalizado';
-  const toISO = es => { const m=String(es||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/); return m ? `${m[3]}-${m[2]}-${m[1]}` : ''; };
-  const toES = iso => iso ? iso.split('-').reverse().join('/') : '';
+  const toISO = value => {
+    const match = String(value || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    return match ? `${match[3]}-${match[2]}-${match[1]}` : '';
+  };
+  const toES = value => value ? value.split('-').reverse().join('/') : '';
 
-  function ensureModal(){
+  function ensureModal() {
     document.body.insertAdjacentHTML('beforeend', `
       <div class="modal-backdrop" id="finished-modal" role="dialog" aria-modal="true">
         <section class="act-modal finished-modal-box">
@@ -156,36 +236,107 @@
       </div>`);
   }
 
-  function prepareTitles(){
-    const configs=[['.finalizadas','finalizadas','Actuaciones Finalizadas'],['.proyectos','proyectosFinalizados','Proyectos Finalizados']];
-    configs.forEach(([card,type,text])=>{
-      const h=$(card+' h2'); if(!h) return;
-      const b=document.createElement('button'); b.type='button'; b.className='finished-title'; b.textContent=text; b.onclick=()=>add(type); h.replaceWith(b);
+  function prepareTitles() {
+    [
+      ['.finalizadas', 'finalizadas', 'Actuaciones Finalizadas'],
+      ['.proyectos', 'proyectosFinalizados', 'Proyectos Finalizados']
+    ].forEach(([card, type, text]) => {
+      const heading = $(`${card} h2`);
+      if (!heading) return;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'finished-title';
+      button.textContent = text;
+      button.onclick = () => add(type);
+      heading.replaceWith(button);
     });
   }
 
-  function render(){ renderOne('#finalizadas-list','finalizadas'); renderOne('#proyectos-list','proyectosFinalizados'); }
-  function renderOne(selector,type){
-    const root=$(selector); if(!root) return;
-    root.innerHTML=list(type).slice(0,MAX).map((x,i)=>`<button class="finished-row" type="button" data-type="${type}" data-index="${i}"><img class="finished-icon icon-calendar" src="../ICONOS/Calendario_Actuaciones.svg" alt=""><span class="finished-content"><span class="finished-main"><span class="finished-date">${esc(x.fecha)}</span><strong>${esc(x.nombre)}</strong></span><span class="finished-person"><img class="finished-icon icon-person" src="../ICONOS/Responsable_Actuaciones.svg" alt=""><span>${esc(x.responsable)}</span></span><span class="finished-money"><img class="finished-icon icon-money" src="../ICONOS/Dinero_Actuaciones.svg" alt=""><span>${esc(x.presupuesto)}</span></span></span></button>`).join('');
-    root.querySelectorAll('.finished-row').forEach(b=>b.onclick=()=>open(b.dataset.type,Number(b.dataset.index)));
+  function render() {
+    renderOne('#finalizadas-list', 'finalizadas');
+    renderOne('#proyectos-list', 'proyectosFinalizados');
   }
-  function add(type){ if(list(type).length>=MAX){ alert(`No se pueden añadir más registros. Hay ${MAX}; elimina previamente alguno.`); return; } open(type,-1); }
-  function open(type,index){
-    const x=index>=0?list(type)[index]:null, dates=String(x?.fecha||'').split(' - ');
-    $('#finished-type').value=type; $('#finished-index').value=index;
-    $('#finished-modal-title').textContent=index>=0?`Editar ${label(type)}`:`Nueva ${label(type)}`;
-    $('#finished-name').value=x?.nombre||''; $('#finished-start').value=toISO(dates[0]); $('#finished-end').value=toISO(dates[1]); $('#finished-owner').value=x?.responsable||''; $('#finished-budget').value=x?.presupuesto||'';
-    $('#deleteFinishedBtn').hidden=index<0; $('#finished-modal').classList.add('open');
-  }
-  function close(){ $('#finished-modal').classList.remove('open'); }
-  function save(e){ e.preventDefault(); const type=$('#finished-type').value, i=Number($('#finished-index').value), arr=list(type); const x={fecha:`${toES($('#finished-start').value)} - ${toES($('#finished-end').value)}`,nombre:$('#finished-name').value.trim(),responsable:$('#finished-owner').value.trim(),presupuesto:$('#finished-budget').value.trim()}; i>=0?arr.splice(i,1,x):arr.push(x); close(); render(); }
-  function remove(){ const type=$('#finished-type').value,i=Number($('#finished-index').value); if(i<0||!confirm(`¿Eliminar este ${label(type)}?`))return; list(type).splice(i,1); close(); render(); }
 
-  document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.empty-slot').forEach(x=>x.remove()); ensureModal(); prepareTitles(); render();
-    $('#closeFinishedModal').onclick=close; $('#cancelFinishedBtn').onclick=close; $('#deleteFinishedBtn').onclick=remove; $('#finished-form').onsubmit=save;
-    $('#finished-modal').onclick=e=>{if(e.target.id==='finished-modal')close();};
+  function renderOne(selector, type) {
+    const root = $(selector);
+    if (!root) return;
+    root.innerHTML = list(type).slice(0, MAX).map((item, index) => `<button class="finished-row" type="button" data-type="${type}" data-index="${index}"><img class="finished-icon icon-calendar" src="../ICONOS/Calendario_Actuaciones.svg" alt=""><span class="finished-content"><span class="finished-main"><span class="finished-date">${esc(item.fecha)}</span><strong>${esc(item.nombre)}</strong></span><span class="finished-person"><img class="finished-icon icon-person" src="../ICONOS/Responsable_Actuaciones.svg" alt=""><span>${esc(item.responsable)}</span></span><span class="finished-money"><img class="finished-icon icon-money" src="../ICONOS/Dinero_Actuaciones.svg" alt=""><span>${esc(item.presupuesto)}</span></span></span></button>`).join('');
+  }
+
+  function add(type) {
+    if (list(type).length >= MAX) {
+      alert(`No se pueden añadir más registros. Hay ${MAX}; elimina previamente alguno.`);
+      return;
+    }
+    open(type, -1);
+  }
+
+  function open(type, index) {
+    const item = index >= 0 ? list(type)[index] : null;
+    const dates = String(item?.fecha || '').split(' - ');
+    $('#finished-type').value = type;
+    $('#finished-index').value = index;
+    $('#finished-modal-title').textContent = index >= 0 ? `Editar ${label(type)}` : `Nueva ${label(type)}`;
+    $('#finished-name').value = item?.nombre || '';
+    $('#finished-start').value = toISO(dates[0]);
+    $('#finished-end').value = toISO(dates[1]);
+    $('#finished-owner').value = item?.responsable || '';
+    $('#finished-budget').value = item?.presupuesto || '';
+    $('#deleteFinishedBtn').hidden = index < 0;
+    $('#finished-modal').classList.add('open');
+  }
+
+  function close() {
+    $('#finished-modal').classList.remove('open');
+  }
+
+  function save(event) {
+    event.preventDefault();
+    const type = $('#finished-type').value;
+    const index = Number($('#finished-index').value);
+    const items = list(type);
+    const item = {
+      fecha: `${toES($('#finished-start').value)} - ${toES($('#finished-end').value)}`,
+      nombre: $('#finished-name').value.trim(),
+      responsable: $('#finished-owner').value.trim(),
+      presupuesto: $('#finished-budget').value.trim()
+    };
+    if (index >= 0) items.splice(index, 1, item);
+    else items.push(item);
+    close();
+    render();
+  }
+
+  function remove() {
+    const type = $('#finished-type').value;
+    const index = Number($('#finished-index').value);
+    if (index < 0 || !confirm(`¿Eliminar este ${label(type)}?`)) return;
+    list(type).splice(index, 1);
+    close();
+    render();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.empty-slot').forEach(element => element.remove());
+    ensureModal();
+    prepareTitles();
+    render();
+
+    $('#finalizadas-list').addEventListener('click', event => {
+      const row = event.target.closest('.finished-row');
+      if (row) open(row.dataset.type, Number(row.dataset.index));
+    });
+    $('#proyectos-list').addEventListener('click', event => {
+      const row = event.target.closest('.finished-row');
+      if (row) open(row.dataset.type, Number(row.dataset.index));
+    });
+    $('#closeFinishedModal').onclick = close;
+    $('#cancelFinishedBtn').onclick = close;
+    $('#deleteFinishedBtn').onclick = remove;
+    $('#finished-form').onsubmit = save;
+    $('#finished-modal').onclick = event => {
+      if (event.target.id === 'finished-modal') close();
+    };
   });
 })();
 

@@ -70,7 +70,7 @@
      </em>
     </a>
    </nav>
-   <button class="print-btn" id="printBtn" onclick="window.print()" type="button">
+   <button class="print-btn" id="printBtn" type="button">
     <span>
      ⎙
     </span>
@@ -112,14 +112,6 @@
   </div>
   <script src="../data/actuaciones-data.js"></script>
   <script src="../js/actuaciones.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var total = window.ACTUACIONES_DATA && Array.isArray(window.ACTUACIONES_DATA.actuaciones)
-        ? window.ACTUACIONES_DATA.actuaciones.length
-        : 12;
-      document.documentElement.style.setProperty('--act-row-count', Math.max(total, 1));
-    });
-  </script>
   <script src="../js/impresion.js"></script>
  </body>
 </html>

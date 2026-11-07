@@ -1,15 +1,27 @@
 const data=window.EMBALSES_DATA;
-const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
-const clone=v=>JSON.parse(JSON.stringify(v));
+const $=s=>document.querySelector(s);
+const numberFormatter=new Intl.NumberFormat('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt=n=>numberFormatter.format(n);
+const clone=typeof structuredClone==='function'?structuredClone:v=>JSON.parse(JSON.stringify(v));
 const toTime=d=>new Date(d+'T00:00:00').getTime();
+const snapshotKeys=data.demoDates || Object.keys(data.snapshots || {}).sort();
+const snapshotTimes=snapshotKeys.map(toTime);
 function snapshotFor(date){
-  const keys=data.demoDates || Object.keys(data.snapshots || {}).sort();
-  if(!keys.length) return {embalses:[],otros:{pintado:{vol:0,pct:0},huesna:{vol:0,pct:0},avisos:0,tratamiento:0}};
+  if(!snapshotKeys.length) return {embalses:[],otros:{pintado:{vol:0,pct:0},huesna:{vol:0,pct:0},avisos:0,tratamiento:0}};
   if(data.snapshots[date]) return clone(data.snapshots[date]);
-  const t=toTime(date);
-  let nearest=keys[0];
-  for(const k of keys){if(Math.abs(toTime(k)-t)<Math.abs(toTime(nearest)-t)) nearest=k;}
-  return clone(data.snapshots[nearest]);
+
+  const target=toTime(date);
+  let low=0,high=snapshotTimes.length-1;
+  while(low<=high){
+    const middle=(low+high)>>1;
+    if(snapshotTimes[middle]<target) low=middle+1;
+    else if(snapshotTimes[middle]>target) high=middle-1;
+    else return clone(data.snapshots[snapshotKeys[middle]]);
+  }
+  const previous=Math.max(0,high);
+  const next=Math.min(snapshotTimes.length-1,low);
+  const nearest=target-snapshotTimes[previous]<=snapshotTimes[next]-target?previous:next;
+  return clone(data.snapshots[snapshotKeys[nearest]]);
 }
 function calc(e){return {...e,pct:Math.round(e.vol/e.cap*100)}}
 function drop(vol,pct,mini=false,systemDrop=false){
@@ -27,7 +39,7 @@ function dam(){return `<img class="dam-icon dam-image" src="../ICONOS/PresaON.gi
 function metrics(m){let max=Math.max(.01,...Object.values(m));return `<div class="metrics">${Object.entries(m).map(([k,v])=>`<div class="metric"><span>${k}</span><div class="metric-track"><div class="metric-fill" style="width:${v/max*100}%"></div></div><b>${fmt(v)}</b></div>`).join('')}</div>`}
 function card(e){return `<article class="card reservoir"><div class="reservoir-top"><h2 class="name">${e.nombre}</h2><div class="status ${e.estado==='SIN RESTRICCIONES'?'':'warn'}">${e.estado}</div><div class="drop-wrap">${drop(e.vol,e.pct)}</div><div class="level-area">${level(e.pct)}</div></div><div class="reservoir-bottom">${rain(e.aporte)}${arrow('green')}${dam()}${arrow('red')}${metrics(e.m)}</div></article>`}
 function system(items,date){let vol=items.reduce((a,x)=>a+x.vol,0),cap=items.reduce((a,x)=>a+x.cap,0),pct=Math.round(vol/cap*100),ap=items.reduce((a,x)=>a+x.aporte,0),m={};items.forEach(x=>Object.entries(x.m).forEach(([k,v])=>m[k]=(m[k]||0)+v));let den=(m['Evaporación']||0)+(m['Q ecológico']||0),ratio=den?(m['Q ecológico']||0)/den*100:0;return `<article class="card system"><div class="system-left"><div class="sys-date">Estado del sistema a ${new Date(date+'T00:00:00').toLocaleDateString('es-ES')}</div>${drop(vol,pct,false,true)}${level(pct)}</div><div class="system-main"><div class="system-heading"><h2>TOTAL SISTEMA</h2><span class="unit-label">Valores en hm³</span></div><span class="period">01/10/${date.slice(0,4)} – ${new Date(date+'T00:00:00').toLocaleDateString('es-ES')}</span><div class="flow">${rain(ap)}${arrow('green')}${dam()}${arrow('red')}${metrics(m)}</div></div><div class="eco-card"><div class="eco-title">Q ecológico<br><span>＋ Evaporación</span></div><div class="eco-value">${fmt(ratio)}%</div></div></article>`}
-function side(o,items){let cons=['minilla','melonares','gergal'].map(id=>{let x=items.find(e=>e.id===id);return{name:x.nombre[0]+x.nombre.slice(1).toLowerCase(),v:x.m.Consumo||0}}),max=Math.max(.01,...cons.map(x=>x.v));return `<aside class="card side-panel"><div class="side-sec"><h3>CONSUMOS</h3><div class="cons-chart">${cons.map(x=>`<div class="cons-col"><div class="cons-bar" style="height:max(5px,calc((100% - 22px) * ${x.v/max}))"><b>${fmt(x.v)}</b></div>${x.name}</div>`).join('')}</div></div><div class="side-sec water-reserves"><div class="reserve-row"><h4>PINTADO</h4>${drop(o.pintado.vol,o.pintado.pct,true)}</div><div class="reserve-row">${drop(o.huesna.vol,o.huesna.pct,true)}<h4>HUESNA</h4></div></div><div class="alerts"><h4>ALERTA TEMPRANA</h4><small>Nº de avisos</small><div class="alert">${o.avisos}</div><small>que afectan al tratamiento</small><div class="alert reda">${o.tratamiento}</div></div></aside>`}
+function side(o,items){const byId=new Map(items.map(item=>[item.id,item]));let cons=['minilla','melonares','gergal'].map(id=>{let x=byId.get(id);return{name:x.nombre[0]+x.nombre.slice(1).toLowerCase(),v:x.m.Consumo||0}}),max=Math.max(.01,...cons.map(x=>x.v));return `<aside class="card side-panel"><div class="side-sec"><h3>CONSUMOS</h3><div class="cons-chart">${cons.map(x=>`<div class="cons-col"><div class="cons-bar" style="height:max(5px,calc((100% - 22px) * ${x.v/max}))"><b>${fmt(x.v)}</b></div>${x.name}</div>`).join('')}</div></div><div class="side-sec water-reserves"><div class="reserve-row"><h4>PINTADO</h4>${drop(o.pintado.vol,o.pintado.pct,true)}</div><div class="reserve-row">${drop(o.huesna.vol,o.huesna.pct,true)}<h4>HUESNA</h4></div></div><div class="alerts"><h4>ALERTA TEMPRANA</h4><small>Nº de avisos</small><div class="alert">${o.avisos}</div><small>que afectan al tratamiento</small><div class="alert reda">${o.tratamiento}</div></div></aside>`}
 function render(){let date=$('#fecha').value,snap=snapshotFor(date),items=snap.embalses.map(calc);$('#dashboard').innerHTML=system(items,date)+items.map(card).join('')+side(snap.otros,items)}
 $('#fecha').addEventListener('change',render);document.querySelectorAll('.nav-btn[data-href]').forEach(b=>b.addEventListener('click',()=>{window.location.href=b.dataset.href;}));
 /* ===== Impresion: el panel se convierte en imagen (tal como se ve en pantalla) y se imprime ===== */

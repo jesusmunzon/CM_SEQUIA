@@ -3,14 +3,36 @@ let EXPLOTACION_DATA = null;
 function selectExplotacionData(fecha) {
   const dataset = window.EXPLOTACION_DATASET || {};
   if (dataset[fecha]) return dataset[fecha];
-  const fechas = Object.keys(dataset).sort();
+
+  const fechas = window.EXPLOTACION_DATA_DATES || Object.keys(dataset).sort();
   if (!fechas.length) throw new Error('No se han cargado datos de Explotación.');
-  const anterior = fechas.filter(item => item <= fecha).at(-1);
-  return dataset[anterior || fechas[0]];
+
+  let low = 0;
+  let high = fechas.length - 1;
+  let previous = fechas[0];
+  while (low <= high) {
+    const middle = (low + high) >> 1;
+    if (fechas[middle] <= fecha) {
+      previous = fechas[middle];
+      low = middle + 1;
+    } else {
+      high = middle - 1;
+    }
+  }
+  return dataset[previous];
 }
 
 const $ = (selector) => document.querySelector(selector);
-const fmt = (value, digits = 2) => Number(value).toLocaleString('es-ES', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const numberFormatters = new Map();
+function fmt(value, digits = 2) {
+  if (!numberFormatters.has(digits)) {
+    numberFormatters.set(digits, new Intl.NumberFormat('es-ES', {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits
+    }));
+  }
+  return numberFormatters.get(digits).format(Number(value));
+}
 
 function damImage(value) {
   return value > 0 ? '../ICONOS/PresaON.gif' : '../ICONOS/PresaOFF.gif';
@@ -119,8 +141,7 @@ function renderCapture() {
     <span class="gergal"><i></i>Gergal</span>
     <span class="melonares"><i></i>Balsa de <br>Melonares</span>`;
 }
-function energyTurbineSvg() {
-  return `<svg class="energy-turbine" viewBox="0 0 60 60" aria-hidden="true">
+const ENERGY_TURBINE_SVG = `<svg class="energy-turbine" viewBox="0 0 60 60" aria-hidden="true">
     <circle class="energy-turbine-ring" cx="30" cy="30" r="26"></circle>
     <path class="energy-turbine-blade" d="M30 28C17 25 13 16 16 11c10 1 16 7 17 16Z"></path>
     <path class="energy-turbine-blade" d="M32 30c3-13 12-17 17-14-1 10-7 16-16 17Z"></path>
@@ -128,6 +149,8 @@ function energyTurbineSvg() {
     <path class="energy-turbine-blade" d="M28 30c-3 13-12 17-17 14 1-10 7-16 16-17Z"></path>
     <circle class="energy-turbine-hub" cx="30" cy="30" r="6"></circle>
   </svg>`;
+function energyTurbineSvg() {
+  return ENERGY_TURBINE_SVG;
 }
 
 function renderEnergy() {
