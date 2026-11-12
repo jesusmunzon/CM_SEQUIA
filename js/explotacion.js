@@ -22,7 +22,11 @@ function selectExplotacionData(fecha) {
   return dataset[previous];
 }
 
-const $ = (selector) => document.querySelector(selector);
+const domCache = new Map();
+const $ = selector => {
+  if (!domCache.has(selector)) domCache.set(selector, document.querySelector(selector));
+  return domCache.get(selector);
+};
 const numberFormatters = new Map();
 function fmt(value, digits = 2) {
   if (!numberFormatters.has(digits)) {
@@ -149,9 +153,6 @@ const ENERGY_TURBINE_SVG = `<svg class="energy-turbine" viewBox="0 0 60 60" aria
     <path class="energy-turbine-blade" d="M28 30c-3 13-12 17-17 14 1-10 7-16 16-17Z"></path>
     <circle class="energy-turbine-hub" cx="30" cy="30" r="6"></circle>
   </svg>`;
-function energyTurbineSvg() {
-  return ENERGY_TURBINE_SVG;
-}
 
 function renderEnergy() {
   const heading = document.querySelector('.energy-card .card-heading');
@@ -175,7 +176,7 @@ function renderEnergy() {
         <article class="energy-module-final">
           <div class="energy-module-shell">
             <div class="energy-module-face">
-              ${energyTurbineSvg()}
+              ${ENERGY_TURBINE_SVG}
               <div class="energy-module-data">
                 <div class="energy-value-line">
                   <strong>${fmt(item.value, 0)}</strong>

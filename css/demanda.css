@@ -123,16 +123,24 @@ a.nav-btn { display: flex; }
 .dm-tobj { left: 476px; top: 30px; width: 116px; height: 34px; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; font-weight: 700; font-size: 13.5px; line-height: 1; white-space: nowrap; }
 .dm-cat { top: 79px; width: 198px; height: 154px; }
 .dm-cat.domestico { left: -70px; }
-.dm-cat.industrial { left: 176px; }
-.dm-cat.oficial { left: 422px; }
+.dm-cat.industrial {
+  left: 176px;
+  --hc: #2E9BAD;
+  --tc: #7FD0DC;
+  --fc: #2F8F9D;
+}
+.dm-cat.oficial {
+  left: 422px;
+  --hc: #24808C;
+  --tc: #8FC4CB;
+  --fc: #1A5B64;
+}
 .dm-bloque { left: 0; top: 0; width: 198px; height: 151px; }
 .dm-bloque > * { position: absolute; }
 .dm-bloque > img { left: 0; top: 0; width: 100%; height: 100%; }
 .dm-bloque .h { left: 1.4%; top: 0; width: 98.6%; height: 21.5%; clip-path: polygon(0 0,90.1% 0,100% 50%,90.1% 100%,0 100%); background: var(--hc); }
 .dm-bloque .t { left: 1.4%; top: 20.7%; width: 64.7%; height: 53.1%; clip-path: polygon(100% 0,0 100%,0 0); background: var(--tc); }
 .dm-bloque .f { left: 1.58%; top: 83.1%; width: 88.2%; height: 11.2%; border-radius: 0 0 8px 8px; background: var(--fc); }
-.dm-cat.industrial { --hc: #2E9BAD; --tc: #7FD0DC; --fc: #2F8F9D; }
-.dm-cat.oficial { --hc: #24808C; --tc: #8FC4CB; --fc: #1A5B64; }
 .dm-ct {
     left: 0;
     top: 4px;
